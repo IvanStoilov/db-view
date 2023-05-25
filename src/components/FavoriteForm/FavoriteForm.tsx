@@ -109,7 +109,7 @@ function FavoriteForm(props: { favorite: Favorite; onClose: () => void }) {
       localStorage.getItem("favorites") || "[]"
     );
     const newFavs = favs.map((fav) =>
-      fav.id === updatedFav.id ? updatedFav : fav
+      fav.favoriteId === updatedFav.favoriteId ? updatedFav : fav
     );
     localStorage.setItem("favorites", JSON.stringify(newFavs));
     props.onClose();
@@ -119,7 +119,7 @@ function FavoriteForm(props: { favorite: Favorite; onClose: () => void }) {
     const favs: Favorite[] = JSON.parse(
       localStorage.getItem("favorites") || "[]"
     );
-    const newFavs = favs.filter((fav) => fav.id !== props.favorite.id);
+    const newFavs = favs.filter((fav) => fav.favoriteId !== props.favorite.favoriteId);
     localStorage.setItem("favorites", JSON.stringify(newFavs));
     props.onClose();
   }

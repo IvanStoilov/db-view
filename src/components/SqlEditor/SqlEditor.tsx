@@ -1,21 +1,21 @@
 import { AgGridReact } from "ag-grid-react";
 import { Field, Form, Formik } from "formik";
 import React, { useState } from "react";
-import { Favorite } from "../../model/Favorite";
+import { Connection } from "../../model/Favorite";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-function SqlEditor(props: { favorite: Favorite }) {
+function SqlEditor(props: { connection: Connection, isVisible: boolean }) {
   const [isExecuting, setIsExecuting] = useState(false);
   const [isMetaPressed, setIsMetaPressed] = useState(false);
-  const [query, setQuery] = useState(localStorage.getItem("query") || "");
+  const [query, setQuery] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [rowData, setRowData] = useState(null);
   const [columnDefs, setColumnDefs] = useState(null);
 
   return (
-    <div className="sql-editor">
+    <div className={'sql-editor' + (props.isVisible ? '' : ' is-hidden')}>
       <Formik
         initialValues={{ sqlQuery: query }}
         onSubmit={(form) => handleSubmit(form.sqlQuery)}
@@ -57,8 +57,8 @@ function SqlEditor(props: { favorite: Favorite }) {
 
     console.debug("Executing", query);
 
-    (window as any).mysql
-      .execute(props.favorite, query)
+    window.mysql
+      .execute(props.connection, query)
       .then((result: any) => {
         console.debug(result);
         setRowData(result.data);

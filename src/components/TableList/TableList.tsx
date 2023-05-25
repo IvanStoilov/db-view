@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Favorite } from "../../model/Favorite";
+import { Connection } from "../../model/Favorite";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-function TableList(props: { favorite: Favorite }) {
+function TableList(props: { connection: Connection }) {
   const [tables, setTables] = useState<string[]>([]);
 
   useEffect(() => {
-    if (props.favorite) {
-      mysql.execute(props.favorite, "SHOW TABLES;").then((result) => {
+    if (props.connection) {
+      mysql.execute(props.connection, "SHOW TABLES;").then((result) => {
         const col = result.columns[0].name;
         setTables(result.data.map((d: any) => d[col]));
       });
     }
-  }, [props.favorite]);
+  }, [props.connection]);
 
   return (
     <aside className="menu tables-list-menu">

@@ -1,9 +1,7 @@
 @import url(https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css);
 
 .wrap {
-  display: grid;
-  grid-template-columns: 0px 200px 1fr;
-  transition: all 0.2s ease-in-out;
+  display: flex;
   padding: 5px;
 }
 
@@ -11,11 +9,8 @@
 .favorites,
 .sidebar {
   height: calc(100vh - 3.25rem); /* (100vh - header) */
+  transition: all 0.2s ease-in-out;
   overflow: hidden;
-}
-
-.wrap--with-favs-menu {
-  grid-template-columns: 200px 200px 1fr;
 }
 
 .favorites {
@@ -23,9 +18,17 @@
 }
 
 .sidebar {
+  width: 200px;
   background-color: white;
   z-index: 10;
 }
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .navbar-brand {
   cursor: pointer;
 }

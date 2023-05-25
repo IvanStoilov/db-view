@@ -2,24 +2,33 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import Favorites from "./components/Favorites";
 import FavoriteForm from "./components/FavoriteForm/FavoriteForm";
-import { Favorite } from "./model/Favorite";
+import { Connection, Favorite } from "./model/Favorite";
 import SqlEditor from "./components/SqlEditor/SqlEditor";
 import TableList from "./components/TableList/TableList";
+import { ConnectionTabs } from "./components/ConnectionTabs/ConnectionTabs";
 
 type MysqlClient = {
-  connect: (fav: Favorite) => Promise<any>;
-  execute: (fav: Favorite, query: string) => Promise<any>;
+  connect: (connection: Connection) => Promise<any>;
+  close: (connection: Connection) => Promise<void>;
+  execute: (connection: Connection, query: string) => Promise<any>;
 };
 
 declare global {
   var mysql: MysqlClient;
+
+  interface Window {
+    mysql: MysqlClient;
+  }
 }
 
 function App() {
   useEffect(() => {}, []);
-  const [showFavsMenu, setShowFavsMenu] = useState(false);
+  const [showFavsMenu, setShowFavsMenu] = useState(true);
   const [selectedFav, setSelectedFav] = useState<Favorite | null>(null);
-  const [connectFav, setConnectFav] = useState<Favorite | null>(null);
+  const [activeConnection, setActiveConnection] = useState<Connection | null>(
+    null
+  );
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   return (
     <div>
@@ -36,18 +45,26 @@ function App() {
           </div>
         </nav>
       </header>
-      <div
-        className={
-          "wrap" + (showFavsMenu || !connectFav ? " wrap--with-favs-menu" : "")
-        }
-      >
-        <div className="favorites">
+      <div className="wrap">
+        <div
+          className="favorites"
+          style={{ width: showFavsMenu ? "200px" : "0" }}
+        >
           <Favorites onSelect={setSelectedFav} onConnect={onFavConnected} />
         </div>
-        <div className="sidebar">
-          {connectFav && <TableList favorite={connectFav} />}
+        <div
+          className="sidebar"
+          style={{ width: !selectedFav ? "200px" : "0" }}
+        >
+          {activeConnection && <TableList connection={activeConnection} />}
         </div>
         <div className="content">
+          <ConnectionTabs
+            connections={connections}
+            activeConnection={activeConnection}
+            onActivate={(conn) => setActiveConnection(conn)}
+            onClose={closeConnection}
+          />
           {selectedFav && (
             <div className="box">
               <FavoriteForm
@@ -56,16 +73,23 @@ function App() {
               />
             </div>
           )}
-          {!selectedFav && connectFav && <SqlEditor favorite={connectFav} />}
+          {connections.map(conn => <SqlEditor connection={conn} isVisible={conn === activeConnection} />)}
         </div>
       </div>
     </div>
   );
 
-  function onFavConnected(fav: Favorite) {
-    setShowFavsMenu(false);
+  function onFavConnected(connection: Connection) {
     setSelectedFav(null);
-    setConnectFav(fav);
+    setActiveConnection(connection);
+    setConnections([...connections, connection]);
+  }
+
+  function closeConnection(connection: Connection) {
+    mysql.close(connection).then(() => {
+      setConnections(connections.filter(c => c!==connection));
+      setActiveConnection(connections[0] || null);
+    });
   }
 }
 

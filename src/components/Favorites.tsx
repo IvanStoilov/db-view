@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Favorite } from "../model/Favorite";
+import { Connection, Favorite } from "../model/Favorite";
 import "./Favorites.css";
 
 function Favorites(props: {
   onSelect: (fav: Favorite) => void;
-  onConnect: (fav: Favorite) => void;
+  onConnect: (connection: Connection) => void;
 }) {
   const [favs, setFavs] = useState<Favorite[]>([]);
   useEffect(() => {
@@ -30,7 +30,7 @@ function Favorites(props: {
 
   function getFav(fav: Favorite) {
     return (
-      <li key={fav.id}>
+      <li key={fav.favoriteId}>
         <a
           onDoubleClick={() => connect(fav)}
           onClick={() => props.onSelect(fav)}
@@ -46,12 +46,16 @@ function Favorites(props: {
   }
 
   function connect(fav: Favorite) {
-    (window as any).mysql.connect(fav).then(() => props.onConnect(fav));
+    const connection = {
+      ...fav,
+      connectionId: (Math.random() + '').substring(2),
+    }
+    window.mysql.connect(connection).then(() => props.onConnect(connection));
   }
 
   function onAddFavorite() {
     const fav: Favorite = {
-      id: (Math.random() + "").substring(2),
+      favoriteId: (Math.random() + "").substring(2),
       name: "New favorite",
       database: "",
       host: "",
