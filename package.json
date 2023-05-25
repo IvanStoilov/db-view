@@ -11,6 +11,9 @@
     "@types/node": "^16.18.14",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
+    "ag-grid-react": "^29.3.5",
+    "formik": "^2.2.9",
+    "mysql2": "^3.2.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
@@ -18,8 +21,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "PORT=3006 react-scripts start",
+    "start": "concurrently 'npm run start:browser' 'npm run start:electron'",
     "start:electron": "electron .",
+    "start:browser": "PORT=3006 BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -43,6 +47,7 @@
     ]
   },
   "devDependencies": {
+    "concurrently": "^8.0.1",
     "electron": "^23.1.1"
   }
 }
