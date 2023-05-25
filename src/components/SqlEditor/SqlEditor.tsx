@@ -1,13 +1,12 @@
 import { AgGridReact } from "ag-grid-react";
 import { Field, Form, Formik } from "formik";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Favorite } from "../../model/Favorite";
-
+import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 function SqlEditor(props: { favorite: Favorite }) {
-  const [isConnecting, setIsConnecting] = useState(true);
   const [isExecuting, setIsExecuting] = useState(false);
   const [isMetaPressed, setIsMetaPressed] = useState(false);
   const [query, setQuery] = useState(localStorage.getItem("query") || "");
@@ -15,61 +14,42 @@ function SqlEditor(props: { favorite: Favorite }) {
   const [rowData, setRowData] = useState(null);
   const [columnDefs, setColumnDefs] = useState(null);
 
-  useEffect(() => {
-    setIsConnecting(true);
-    (window as any).mysql
-      .connect(props.favorite)
-      .then(() => setIsConnecting(false));
-  }, [props.favorite]);
-
   return (
-    <div>
-      {isConnecting && <div>Connecting ...</div>}
-      {!isConnecting && getEditor()}
+    <div className="sql-editor">
+      <Formik
+        initialValues={{ sqlQuery: query }}
+        onSubmit={(form) => handleSubmit(form.sqlQuery)}
+      >
+        <Form>
+          <div className="field">
+            <div className="control">
+              <Field
+                name="sqlQuery"
+                type="text"
+                as="textarea"
+                onKeyDown={onEditorKeyDown}
+                onKeyUp={onEditorKeyUp}
+              />
+            </div>
+          </div>
+        </Form>
+      </Formik>
+      <div className="sql-editor__data ag-theme-alpine">
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          suppressContextMenu={true}
+          preventDefaultOnContextMenu={true}
+        ></AgGridReact>
+      </div>
+      {error && (
+        <div className="notification is-danger my-3">
+          <button className="delete" onClick={() => setError(null)}></button>
+          {error}
+        </div>
+      )}
     </div>
   );
-
-  function getEditor() {
-    return (
-      <div>
-        <Formik
-          initialValues={{ sqlQuery: query }}
-          onSubmit={(form) => handleSubmit(form.sqlQuery)}
-        >
-          <Form>
-            <div className="field">
-              <div className="control">
-                <Field
-                  name="sqlQuery"
-                  type="text"
-                  as="textarea"
-                  onKeyDown={onEditorKeyDown}
-                  onKeyUp={onEditorKeyUp}
-                />
-              </div>
-            </div>
-            <div>
-              <button className="button is-primary" type="submit">
-                Submit
-              </button>
-            </div>
-          </Form>
-        </Formik>
-        <div
-          className="ag-theme-alpine"
-          style={{ width: "100%", height: "500px" }}
-        >
-          <AgGridReact
-            rowData={rowData}
-            columnDefs={columnDefs}
-            suppressContextMenu={true}
-            preventDefaultOnContextMenu={true}
-          ></AgGridReact>
-        </div>
-        {error && <div>{error}</div>}
-      </div>
-    );
-  }
 
   function handleSubmit(query: string) {
     setIsExecuting(true);
@@ -113,7 +93,7 @@ function SqlEditor(props: { favorite: Favorite }) {
         start = start === -1 ? 0 : start + 1;
 
         let end = query.substring(selectionStart).indexOf(";");
-        end = end === -1 ? query.length : (end + selectionStart);
+        end = end === -1 ? query.length : end + selectionStart;
 
         query = query.substring(start, end).trim();
         console.log({ selectionStart, start, end, query });

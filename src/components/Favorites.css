@@ -1,0 +1,13 @@
+.menu-list a.favorite-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.favorite-item__edit {
+  display: none;
+}
+
+.favorite-item:hover .favorite-item__edit {
+  display: block;
+}

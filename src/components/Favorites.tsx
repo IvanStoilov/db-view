@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Favorite } from "../model/Favorite";
+import "./Favorites.css";
 
 function Favorites(props: {
   onSelect: (fav: Favorite) => void;
@@ -17,8 +18,11 @@ function Favorites(props: {
         <ul className="menu-list">{favs?.map(getFav)}</ul>
       </aside>
       <div>
-        <button className="button" onClick={onAddFavorite}>
-          Add favorite
+        <button
+          className="button is-primary is-inverted"
+          onClick={onAddFavorite}
+        >
+          <i className="far fa-plus"></i> Add favorite
         </button>
       </div>
     </div>
@@ -27,14 +31,22 @@ function Favorites(props: {
   function getFav(fav: Favorite) {
     return (
       <li key={fav.id}>
-        <a onDoubleClick={() => props.onConnect(fav)}>
+        <a
+          onDoubleClick={() => connect(fav)}
+          onClick={() => props.onSelect(fav)}
+          className="favorite-item"
+        >
           <span style={{ fontWeight: "bold" }}>{fav.name}</span>
-          <span onClick={() => props.onSelect(fav)}>
-            <i className="fas fa-home"></i> Edit
+          <span className="favorite-item__edit">
+            <i className="fas fa-pen"></i>
           </span>
         </a>
       </li>
     );
+  }
+
+  function connect(fav: Favorite) {
+    (window as any).mysql.connect(fav).then(() => props.onConnect(fav));
   }
 
   function onAddFavorite() {

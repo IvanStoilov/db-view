@@ -1,8 +1,36 @@
 @import url(https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css);
 
-textarea {
-  width: 100%;
-  min-height: 5em;
-  padding: 8px;
-  font-family: monospace;
+.wrap {
+  display: grid;
+  grid-template-columns: 0px 200px 1fr;
+  transition: all 0.2s ease-in-out;
+  padding: 5px;
+}
+
+.wrap,
+.favorites,
+.sidebar {
+  height: calc(100vh - 3.25rem); /* (100vh - header) */
+  overflow: hidden;
+}
+
+.wrap--with-favs-menu {
+  grid-template-columns: 200px 200px 1fr;
+}
+
+.favorites {
+  width: 200px;
+}
+
+.sidebar {
+  background-color: white;
+  z-index: 10;
+}
+.navbar-brand {
+  cursor: pointer;
+}
+
+.tables-list-menu {
+  height: 100%;
+  overflow-y: auto;
 }
