@@ -38,7 +38,7 @@ class MysqlConnectionManager {
     const mysqlConnection = this.connections[connection.connectionId];
 
     if (!mysqlConnection) {
-      return Promise.reject('Connection not found');
+      return Promise.reject("Connection not found");
     }
 
     return mysqlConnection.end();
@@ -60,6 +60,13 @@ class MysqlConnectionManager {
     return this.connections[connection.connectionId]
       .query(query)
       .then((result) => ({ data: result[0], columns: result[1] }));
+  }
+
+  /**
+   * Closes all open connections
+   */
+  closeAllConnection() {
+    Object.values(this.connections).forEach((conn) => conn.close());
   }
 }
 
