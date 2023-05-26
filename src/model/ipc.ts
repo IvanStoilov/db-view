@@ -4,8 +4,8 @@ import { QueryResult } from "./QueryResult";
 
 type MysqlClient = {
   connect(connection: Connection): Promise<void>;
-  close(connection: Connection): Promise<void>;
-  execute(connection: Connection, query: string): Promise<QueryResult>;
+  close(connectionId: string): Promise<void>;
+  execute(connectionId: string, query: string): Promise<QueryResult>;
 };
 
 type Storage = {

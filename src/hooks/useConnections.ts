@@ -1,27 +1,50 @@
 import { useState } from "react";
 import { Connection } from "../model/Connection";
 import { Favorite } from "../model/Favorite";
-import { QueryResult } from "../model/QueryResult";
+import { produce } from "immer";
 
 export function useConnections() {
-  const [items, setItems] = useState<Connection[]>([]);
-  const [selected, select] = useState<Connection | null>(null);
-  const [results, setResults] = useState<Record<string, QueryResult>>({});
+  const [items, setItems] = useState<Record<string, Connection>>({});
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = selectedId ? items[selectedId] || null : null;
+  const itemsArray = Object.values(items);
 
   function connect(favorite: Favorite) {
+    const connectionsWithSameNameCount = itemsArray.filter(
+      (conn) => conn.favorite.name === favorite.name
+    ).length;
+    const suffix =
+      connectionsWithSameNameCount > 0
+        ? ` (${connectionsWithSameNameCount})`
+        : "";
+
     const connection = {
-      ...favorite,
+      favorite,
+      name: favorite.name + suffix,
       connectionId: (Math.random() + "").substring(2),
+      query: "select * from address",
+      queryResult: null,
+      tables: [],
     };
+
     mysql.connect(connection).then(() => {
-      setItems([...items, connection]);
+      setItems(
+        produce(items, (draft) => {
+          draft[connection.connectionId] = connection;
+        })
+      );
+      select(connection);
     });
   }
 
   function close(connection: Connection) {
-    mysql.close(connection).then(() => {
-      setItems(items.filter((f) => f.connectionId === connection.connectionId));
-      if (selected?.connectionId === connection.connectionId) {
+    mysql.close(connection.connectionId).then(() => {
+      setItems(
+        produce(items, (draft) => {
+          delete draft[connection.connectionId];
+        })
+      );
+      if (selectedId === connection.connectionId) {
         clearSelection();
       }
     });
@@ -31,23 +54,43 @@ export function useConnections() {
     select(null);
   }
 
-  function execute(connection: Connection, query: string) {
-    mysql.execute(connection, query).then((result) => {
-      setResults({
-        ...results,
-        [connection.connectionId]: result,
-      });
+  function execute(connectionId: string, query: string) {
+    console.debug(`Executing (${connectionId}): ${query}`);
+
+    mysql.execute(connectionId, query).then((queryResult) => {
+      console.debug(`Results (${connectionId})`, queryResult);
+
+      setItems(
+        produce(items, (draft) => {
+          draft[connectionId].queryResult = queryResult;
+        })
+      );
     });
   }
 
+  function select(connection: Connection | null) {
+    setSelectedId(connection === null ? null : connection.connectionId);
+  }
+
+  function setQuery(query: string) {
+    if (selectedId) {
+      setItems(
+        produce(items, (draft) => {
+          draft[selectedId].query = query;
+        })
+      );
+    }
+  }
+
   return {
-    items,
+    items: itemsArray,
     selected,
+
     connect,
     close,
     select,
     clearSelection,
     execute,
-    result: selected ? results[selected.connectionId] : null,
+    setQuery,
   };
 }

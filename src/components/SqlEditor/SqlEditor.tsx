@@ -6,13 +6,13 @@ import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Connection } from "../../model/Connection";
+import { useAppContext } from "../../hooks/AppContext";
 
 function SqlEditor(props: { connection: Connection }) {
+  const { connections } = useAppContext();
+
   const [isExecuting, setIsExecuting] = useState(false);
-  const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [rowData, setRowData] = useState(null);
-  const [columnDefs, setColumnDefs] = useState(null);
 
   function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
     editor.onKeyDown((e) => onEditorKeyDown(e as any));
@@ -21,10 +21,10 @@ function SqlEditor(props: { connection: Connection }) {
   return (
     <div className="sql-editor">
       <Editor
-        defaultValue={query}
+        value={props.connection.query}
         height="200px"
         defaultLanguage="sql"
-        onChange={(v) => setQuery(v || "")}
+        onChange={(v) => connections.setQuery(v || "")}
         onMount={handleOnEditorMount}
         options={{
           minimap: {
@@ -34,8 +34,12 @@ function SqlEditor(props: { connection: Connection }) {
       ></Editor>
       <div className="sql-editor__data ag-theme-alpine">
         <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
+          rowData={props.connection.queryResult?.data}
+          columnDefs={props.connection.queryResult?.columns.map((col) => ({
+            field: col.name,
+            headerName: `${col.name} (${col.type})`,
+            editable: false,
+          }))}
           suppressContextMenu={true}
           preventDefaultOnContextMenu={true}
         ></AgGridReact>
@@ -53,27 +57,27 @@ function SqlEditor(props: { connection: Connection }) {
     setIsExecuting(true);
     setError(null);
 
-    console.debug("Executing", query);
+    connections.execute(props.connection.connectionId, query);
 
-    window.mysql
-      .execute(props.connection, query)
-      .then((result: any) => {
-        console.debug(result);
-        setRowData(result.data);
-        setColumnDefs(
-          result.columns.map((col: any) => ({
-            field: col.name,
-            headerName: `${col.name} (${col.type})`,
-            editable: false,
-          }))
-        );
-        setIsExecuting(false);
-      })
-      .catch((error: Error) => {
-        console.error(error);
-        setError(error.message);
-        setIsExecuting(false);
-      });
+    // window.mysql
+    //   .execute(props.connection.connectionId, query)
+    //   .then((result: any) => {
+    //     console.debug(result);
+    //     setRowData(result.data);
+    //     setColumnDefs(
+    //       result.columns.map((col: any) => ({
+    //         field: col.name,
+    //         headerName: `${col.name} (${col.type})`,
+    //         editable: false,
+    //       }))
+    //     );
+    //     setIsExecuting(false);
+    //   })
+    //   .catch((error: Error) => {
+    //     console.error(error);
+    //     setError(error.message);
+    //     setIsExecuting(false);
+    //   });
   }
 
   function onEditorKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -95,8 +99,6 @@ function SqlEditor(props: { connection: Connection }) {
       event.preventDefault();
       event.stopPropagation();
     }
-
-    localStorage.setItem("query", query);
   }
 }
 

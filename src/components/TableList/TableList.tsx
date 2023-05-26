@@ -9,7 +9,7 @@ function TableList(props: { connection: Connection }) {
 
   useEffect(() => {
     if (props.connection) {
-      mysql.execute(props.connection, "SHOW TABLES;").then((result) => {
+      mysql.execute(props.connection.connectionId, "SHOW TABLES;").then((result) => {
         const col = result.columns[0].name;
         setTables(result.data.map((d: any) => d[col]));
       });

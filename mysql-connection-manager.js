@@ -16,12 +16,12 @@ class MysqlConnectionManager {
    */
   connect(ipc, connection) {
     console.debug("Connecting to MySQL server", { connection });
-    const connPromise = mysql.createConnection(connection);
+    const connPromise = mysql.createConnection(connection.favorite);
 
     return new Promise((resolve, reject) => {
       connPromise
         .then((conn) => {
-          console.debug("Connected to " + connection.name);
+          console.debug("Connected to " + connection.favorite.name);
           this.connections[connection.connectionId] = conn;
           resolve();
         })
@@ -34,8 +34,8 @@ class MysqlConnectionManager {
    * @param {Connection} connection
    * @returns {Promise}
    */
-  close(ipc, connection) {
-    const mysqlConnection = this.connections[connection.connectionId];
+  close(ipc, connectionId) {
+    const mysqlConnection = this.connections[connectionId];
 
     if (!mysqlConnection) {
       return Promise.reject("Connection not found");
@@ -50,14 +50,14 @@ class MysqlConnectionManager {
    * @param {string} query
    * @returns {Promise}
    */
-  execute(ipc, connection, query) {
-    if (!this.connections[connection.connectionId]) {
-      return Promise.reject(`${connection.name} not connected. Connect first.`);
+  execute(ipc, connectionId, query) {
+    if (!this.connections[connectionId]) {
+      return Promise.reject(`${connectionId} not connected. Connect first.`);
     }
 
-    console.debug("Executing ", { connection, query });
+    console.debug("Executing ", { connectionId, query });
 
-    return this.connections[connection.connectionId]
+    return this.connections[connectionId]
       .query(query)
       .then((result) => ({ data: result[0], columns: result[1] }));
   }

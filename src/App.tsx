@@ -3,19 +3,13 @@ import "./App.css";
 import React, { useState } from "react";
 import Favorites from "./components/Favorites/Favorites";
 import FavoriteForm from "./components/FavoriteForm/FavoriteForm";
-import { Connection } from "./model/Connection";
 import { ConnectionTabs } from "./components/ConnectionTabs/ConnectionTabs";
 import { ConnectionView } from "./components/ConnectionView/ConnectionView";
-import { useFavorites } from "./hooks/useFavorites";
-import { useConnections } from "./hooks/useConnections";
+import { useAppContext } from "./hooks/AppContext";
 
 function App() {
   const [showFavsMenu, setShowFavsMenu] = useState(true);
-  const [activeConnection, setActiveConnection] = useState<Connection | null>(
-    null
-  );
-  const favs = useFavorites();
-  const conns = useConnections();
+  const { favorites, connections } = useAppContext();
 
   return (
     <div>
@@ -38,36 +32,30 @@ function App() {
           style={{ width: showFavsMenu ? "200px" : "0" }}
         >
           <Favorites
-            favorites={favs.items}
-            onSelect={favs.select}
-            onConnect={conns.connect}
-            onAddFavorite={favs.add}
+            favorites={favorites.items}
+            onSelect={favorites.select}
+            onConnect={connections.connect}
+            onAddFavorite={favorites.add}
           />
         </div>
         <div className="content">
-          {favs.selected && (
+          {favorites.selected && (
             <div className="box">
               <FavoriteForm
-                favorite={favs.selected}
-                onClose={favs.clearSelection}
-                onDelete={favs.remove}
-                onUpdate={favs.update}
+                favorite={favorites.selected}
+                onClose={favorites.clearSelection}
+                onDelete={favorites.remove}
+                onUpdate={favorites.update}
               />
             </div>
           )}
           <ConnectionTabs
-            connections={conns.items}
-            activeConnection={activeConnection}
-            onActivate={(conn) => setActiveConnection(conn)}
-            onClose={conns.close}
+            connections={connections.items}
+            activeConnection={connections.selected}
+            onActivate={connections.select}
+            onClose={connections.close}
           />
-          {conns.items.map((conn) => (
-            <ConnectionView
-              key={conn.connectionId}
-              connection={conn}
-              isVisible={conn === activeConnection}
-            />
-          ))}
+          {connections.selected && <ConnectionView connection={connections.selected} />}
         </div>
       </div>
     </div>

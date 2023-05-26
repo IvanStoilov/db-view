@@ -27,7 +27,7 @@ export function useFavorites() {
   function remove() {
     if (selected) {
       storage.delete(selected.favoriteId).then(() => {
-        setItems(items.filter((f) => f.favoriteId === selected.favoriteId));
+        setItems(items.filter((f) => f.favoriteId !== selected.favoriteId));
         clearSelection();
       });
     }

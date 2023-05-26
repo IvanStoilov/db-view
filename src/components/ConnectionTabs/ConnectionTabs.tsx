@@ -21,7 +21,7 @@ export function ConnectionTabs(props: {
                 <i className="fas fa-server"></i>
               </span>
               <span>
-                {connection.name} ({ind + 1})
+                {connection.name}
               </span>
               <button
                 className="delete ml-2"

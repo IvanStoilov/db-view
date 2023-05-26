@@ -8,10 +8,10 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("mysql", {
-  connect: (connection) => ipcRenderer.invoke("mysqlConnect", connection),
-  close: (connection) => ipcRenderer.invoke("mysqlClose", connection),
-  execute: (connection, query) =>
-    ipcRenderer.invoke("mysqlExecute", connection, query),
+  connect: (favorite) => ipcRenderer.invoke("mysqlConnect", favorite),
+  close: (connectionId) => ipcRenderer.invoke("mysqlClose", connectionId),
+  execute: (connectionId, query) =>
+    ipcRenderer.invoke("mysqlExecute", connectionId, query),
 });
 
 contextBridge.exposeInMainWorld("storage", {

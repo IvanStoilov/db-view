@@ -1,9 +1,8 @@
 // Modules to control application life and create native browser window
 require("./storage");
-const { app, BrowserWindow, globalShortcut } = require("electron");
+const { app, BrowserWindow, globalShortcut, session } = require("electron");
 const path = require("path");
 const { MysqlConnectionManager } = require("./mysql-connection-manager");
-
 /**
  * @type BrowserWindow
  */
@@ -46,6 +45,10 @@ function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  // await session.defaultSession.loadExtension(
+  //   "/Users/ivan/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.27.8_0/"
+  // );
+
   connectionManager = new MysqlConnectionManager();
 
   app.on("activate", function () {
