@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Connection } from "../../model/Favorite";
+import { Connection } from "../../model/Connection";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";

@@ -1,26 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { Connection, Favorite } from "../model/Favorite";
+import React from "react";
+import { Favorite } from "../../model/Favorite";
 import "./Favorites.css";
 
 function Favorites(props: {
-  onSelect: (fav: Favorite) => void;
-  onConnect: (connection: Connection) => void;
+  favorites: Favorite[];
+  onAddFavorite: () => void;
+  onSelect: (favorite: Favorite) => void;
+  onConnect: (favorite: Favorite) => void;
 }) {
-  const [favs, setFavs] = useState<Favorite[]>([]);
-  useEffect(() => {
-    const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
-    setFavs(favs);
-  }, []);
-
   return (
     <div>
       <aside className="menu">
-        <ul className="menu-list">{favs?.map(getFav)}</ul>
+        <ul className="menu-list">{props.favorites.map(getFav)}</ul>
       </aside>
       <div>
         <button
           className="button is-primary is-inverted"
-          onClick={onAddFavorite}
+          onClick={props.onAddFavorite}
         >
           <i className="far fa-plus"></i> Add favorite
         </button>
@@ -50,23 +46,6 @@ function Favorites(props: {
       connectionId: (Math.random() + "").substring(2),
     };
     window.mysql.connect(connection).then(() => props.onConnect(connection));
-  }
-
-  function onAddFavorite() {
-    const fav: Favorite = {
-      favoriteId: (Math.random() + "").substring(2),
-      name: "New favorite",
-      database: "",
-      host: "",
-      password: "",
-      user: "",
-    };
-
-    const newFavs = [...favs, fav];
-
-    setFavs(newFavs);
-
-    localStorage.setItem("favorites", JSON.stringify(newFavs));
   }
 }
 

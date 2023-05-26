@@ -6,7 +6,3 @@ export type Favorite = {
   host: string;
   database: string;
 };
-
-export type Connection = Favorite & {
-  connectionId: string;
-};

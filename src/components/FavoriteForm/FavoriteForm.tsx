@@ -2,10 +2,18 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import React from "react";
 import { Favorite } from "../../model/Favorite";
 
-function FavoriteForm(props: { favorite: Favorite; onClose: () => void }) {
+function FavoriteForm(props: {
+  favorite: Favorite;
+  onUpdate: (favoriteId: string, newData: Favorite) => void;
+  onClose: () => void;
+  onDelete: () => void;
+}) {
   return (
     <div>
-      <Formik initialValues={props.favorite} onSubmit={handleSubmit}>
+      <Formik
+        initialValues={props.favorite}
+        onSubmit={(fav) => props.onUpdate(fav.favoriteId, fav)}
+      >
         <Form>
           <div className="field">
             <label htmlFor="formIdName" className="label">
@@ -94,7 +102,10 @@ function FavoriteForm(props: { favorite: Favorite; onClose: () => void }) {
               </button>
             </div>
             <div className="column">
-              <button className="button is-danger" onClick={onDelete}>
+              <button
+                className="button is-danger"
+                onClick={() => props.onDelete()}
+              >
                 Delete
               </button>
             </div>
@@ -103,26 +114,6 @@ function FavoriteForm(props: { favorite: Favorite; onClose: () => void }) {
       </Formik>
     </div>
   );
-
-  function handleSubmit(updatedFav: Favorite) {
-    const favs: Favorite[] = JSON.parse(
-      localStorage.getItem("favorites") || "[]"
-    );
-    const newFavs = favs.map((fav) =>
-      fav.favoriteId === updatedFav.favoriteId ? updatedFav : fav
-    );
-    localStorage.setItem("favorites", JSON.stringify(newFavs));
-    props.onClose();
-  }
-
-  function onDelete() {
-    const favs: Favorite[] = JSON.parse(
-      localStorage.getItem("favorites") || "[]"
-    );
-    const newFavs = favs.filter((fav) => fav.favoriteId !== props.favorite.favoriteId);
-    localStorage.setItem("favorites", JSON.stringify(newFavs));
-    props.onClose();
-  }
 }
 
 export default FavoriteForm;

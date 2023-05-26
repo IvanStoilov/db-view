@@ -10,7 +10,14 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("mysql", {
   connect: (connection) => ipcRenderer.invoke("mysqlConnect", connection),
   close: (connection) => ipcRenderer.invoke("mysqlClose", connection),
-  execute: (connection, query) => ipcRenderer.invoke("mysqlExecute", connection, query),
+  execute: (connection, query) =>
+    ipcRenderer.invoke("mysqlExecute", connection, query),
+});
+
+contextBridge.exposeInMainWorld("storage", {
+  set: (key, value) => ipcRenderer.invoke("storageSet", key, value),
+  delete: (key) => ipcRenderer.invoke("storageDelete", key),
+  getAll: () => ipcRenderer.invoke("storageGetAll"),
 });
 
 window.addEventListener("DOMContentLoaded", () => {

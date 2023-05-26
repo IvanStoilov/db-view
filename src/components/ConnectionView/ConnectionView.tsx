@@ -1,4 +1,4 @@
-import { Connection } from "../../model/Favorite";
+import { Connection } from "../../model/Connection";
 import SqlEditor from "../SqlEditor/SqlEditor";
 import TableList from "../TableList/TableList";
 import "./ConnectionView.css";

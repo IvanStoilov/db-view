@@ -1,34 +1,21 @@
-import React, { useEffect, useState } from "react";
+import "./model/ipc";
 import "./App.css";
-import Favorites from "./components/Favorites";
+import React, { useState } from "react";
+import Favorites from "./components/Favorites/Favorites";
 import FavoriteForm from "./components/FavoriteForm/FavoriteForm";
-import { Connection, Favorite } from "./model/Favorite";
-import TableList from "./components/TableList/TableList";
+import { Connection } from "./model/Connection";
 import { ConnectionTabs } from "./components/ConnectionTabs/ConnectionTabs";
 import { ConnectionView } from "./components/ConnectionView/ConnectionView";
-
-type MysqlClient = {
-  connect: (connection: Connection) => Promise<any>;
-  close: (connection: Connection) => Promise<void>;
-  execute: (connection: Connection, query: string) => Promise<any>;
-};
-
-declare global {
-  var mysql: MysqlClient;
-
-  interface Window {
-    mysql: MysqlClient;
-  }
-}
+import { useFavorites } from "./hooks/useFavorites";
+import { useConnections } from "./hooks/useConnections";
 
 function App() {
-  useEffect(() => {}, []);
   const [showFavsMenu, setShowFavsMenu] = useState(true);
-  const [selectedFav, setSelectedFav] = useState<Favorite | null>(null);
   const [activeConnection, setActiveConnection] = useState<Connection | null>(
     null
   );
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const favs = useFavorites();
+  const conns = useConnections();
 
   return (
     <div>
@@ -50,24 +37,31 @@ function App() {
           className="favorites"
           style={{ width: showFavsMenu ? "200px" : "0" }}
         >
-          <Favorites onSelect={setSelectedFav} onConnect={onFavConnected} />
+          <Favorites
+            favorites={favs.items}
+            onSelect={favs.select}
+            onConnect={conns.connect}
+            onAddFavorite={favs.add}
+          />
         </div>
         <div className="content">
-          {selectedFav && (
+          {favs.selected && (
             <div className="box">
               <FavoriteForm
-                favorite={selectedFav}
-                onClose={() => setSelectedFav(null)}
+                favorite={favs.selected}
+                onClose={favs.clearSelection}
+                onDelete={favs.remove}
+                onUpdate={favs.update}
               />
             </div>
           )}
           <ConnectionTabs
-            connections={connections}
+            connections={conns.items}
             activeConnection={activeConnection}
             onActivate={(conn) => setActiveConnection(conn)}
-            onClose={closeConnection}
+            onClose={conns.close}
           />
-          {connections.map((conn) => (
+          {conns.items.map((conn) => (
             <ConnectionView
               key={conn.connectionId}
               connection={conn}
@@ -78,20 +72,6 @@ function App() {
       </div>
     </div>
   );
-
-  function onFavConnected(connection: Connection) {
-    setSelectedFav(null);
-    setShowFavsMenu(false);
-    setActiveConnection(connection);
-    setConnections([...connections, connection]);
-  }
-
-  function closeConnection(connection: Connection) {
-    mysql.close(connection).then(() => {
-      setConnections(connections.filter((c) => c !== connection));
-      setActiveConnection(connections[0] || null);
-    });
-  }
 }
 
 export default App;

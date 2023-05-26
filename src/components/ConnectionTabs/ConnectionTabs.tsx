@@ -1,5 +1,5 @@
 import React from "react";
-import { Connection } from "../../model/Favorite";
+import { Connection } from "../../model/Connection";
 import "./ConnectionTabs.css";
 
 export function ConnectionTabs(props: {

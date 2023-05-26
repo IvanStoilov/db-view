@@ -1,11 +1,11 @@
 import { AgGridReact } from "ag-grid-react";
 import React, { useState } from "react";
-import { Connection } from "../../model/Favorite";
 import { Editor, OnMount } from "@monaco-editor/react";
 
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { Connection } from "../../model/Connection";
 
 function SqlEditor(props: { connection: Connection }) {
   const [isExecuting, setIsExecuting] = useState(false);
