@@ -1,5 +1,6 @@
 import React from "react";
 import { Connection } from "../../model/Favorite";
+import "./ConnectionTabs.css";
 
 export function ConnectionTabs(props: {
   connections: Connection[];
@@ -19,8 +20,13 @@ export function ConnectionTabs(props: {
               <span className="icon is-small">
                 <i className="fas fa-server"></i>
               </span>
-              <span>{connection.name} ({ind + 1})</span>
-              <button className="delete ml-2" onClick={() => props.onClose(connection)}></button>
+              <span>
+                {connection.name} ({ind + 1})
+              </span>
+              <button
+                className="delete ml-2"
+                onClick={() => props.onClose(connection)}
+              ></button>
             </a>
           </li>
         ))}

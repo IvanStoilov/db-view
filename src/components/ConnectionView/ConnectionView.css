@@ -1,0 +1,14 @@
+.connection-view {
+  display: flex;
+}
+
+.connection-view__editor {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar {
+  width: 200px;
+  background-color: white;
+  z-index: 10;
+}

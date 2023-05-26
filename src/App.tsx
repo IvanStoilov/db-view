@@ -3,9 +3,9 @@ import "./App.css";
 import Favorites from "./components/Favorites";
 import FavoriteForm from "./components/FavoriteForm/FavoriteForm";
 import { Connection, Favorite } from "./model/Favorite";
-import SqlEditor from "./components/SqlEditor/SqlEditor";
 import TableList from "./components/TableList/TableList";
 import { ConnectionTabs } from "./components/ConnectionTabs/ConnectionTabs";
+import { ConnectionView } from "./components/ConnectionView/ConnectionView";
 
 type MysqlClient = {
   connect: (connection: Connection) => Promise<any>;
@@ -52,19 +52,7 @@ function App() {
         >
           <Favorites onSelect={setSelectedFav} onConnect={onFavConnected} />
         </div>
-        <div
-          className="sidebar"
-          style={{ width: !selectedFav ? "200px" : "0" }}
-        >
-          {activeConnection && <TableList connection={activeConnection} />}
-        </div>
         <div className="content">
-          <ConnectionTabs
-            connections={connections}
-            activeConnection={activeConnection}
-            onActivate={(conn) => setActiveConnection(conn)}
-            onClose={closeConnection}
-          />
           {selectedFav && (
             <div className="box">
               <FavoriteForm
@@ -73,8 +61,14 @@ function App() {
               />
             </div>
           )}
+          <ConnectionTabs
+            connections={connections}
+            activeConnection={activeConnection}
+            onActivate={(conn) => setActiveConnection(conn)}
+            onClose={closeConnection}
+          />
           {connections.map((conn) => (
-            <SqlEditor
+            <ConnectionView
               key={conn.connectionId}
               connection={conn}
               isVisible={conn === activeConnection}
@@ -87,6 +81,7 @@ function App() {
 
   function onFavConnected(connection: Connection) {
     setSelectedFav(null);
+    setShowFavsMenu(false);
     setActiveConnection(connection);
     setConnections([...connections, connection]);
   }

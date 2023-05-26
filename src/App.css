@@ -2,7 +2,6 @@
 
 .wrap {
   display: flex;
-  padding: 5px;
 }
 
 .wrap,
@@ -15,12 +14,7 @@
 
 .favorites {
   width: 200px;
-}
-
-.sidebar {
-  width: 200px;
-  background-color: white;
-  z-index: 10;
+  flex-shrink: 0;
 }
 
 .content {
@@ -29,7 +23,7 @@
   flex-direction: column;
 }
 
-.navbar-brand {
+.navbar-item {
   cursor: pointer;
 }
 

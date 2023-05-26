@@ -1,26 +1,26 @@
 import { AgGridReact } from "ag-grid-react";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Connection } from "../../model/Favorite";
-import * as E from "@monaco-editor/react";
+import { Editor, OnMount } from "@monaco-editor/react";
 
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
-function SqlEditor(props: { connection: Connection; isVisible: boolean }) {
+function SqlEditor(props: { connection: Connection }) {
   const [isExecuting, setIsExecuting] = useState(false);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [rowData, setRowData] = useState(null);
   const [columnDefs, setColumnDefs] = useState(null);
 
-  function handleOnEditorMount(editor: Parameters<E.OnMount>[0]) {
+  function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
     editor.onKeyDown((e) => onEditorKeyDown(e as any));
   }
 
   return (
-    <div className={"sql-editor" + (props.isVisible ? "" : " is-hidden")}>
-      <E.Editor
+    <div className="sql-editor">
+      <Editor
         defaultValue={query}
         height="200px"
         defaultLanguage="sql"
@@ -31,7 +31,7 @@ function SqlEditor(props: { connection: Connection; isVisible: boolean }) {
             enabled: false,
           },
         }}
-      ></E.Editor>
+      ></Editor>
       <div className="sql-editor__data ag-theme-alpine">
         <AgGridReact
           rowData={rowData}
@@ -82,8 +82,6 @@ function SqlEditor(props: { connection: Connection; isVisible: boolean }) {
       let sql = textarea.value;
       const selectionStart = textarea.selectionStart;
 
-      console.log({ selectionStart, sql })
-
       let start = sql.substring(0, selectionStart).lastIndexOf(";");
       start = start === -1 ? 0 : start + 1;
 
@@ -91,8 +89,11 @@ function SqlEditor(props: { connection: Connection; isVisible: boolean }) {
       end = end === -1 ? sql.length : end + selectionStart;
 
       sql = sql.substring(start, end).trim();
-      
+
       handleSubmit(sql);
+
+      event.preventDefault();
+      event.stopPropagation();
     }
 
     localStorage.setItem("query", query);
