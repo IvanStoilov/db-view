@@ -31,13 +31,12 @@ function Favorites(props: {
   function getFav(fav: Favorite) {
     return (
       <li key={fav.favoriteId}>
-        <a
-          onDoubleClick={() => connect(fav)}
-          onClick={() => props.onSelect(fav)}
-          className="favorite-item"
-        >
+        <a onDoubleClick={() => connect(fav)} className="favorite-item">
           <span style={{ fontWeight: "bold" }}>{fav.name}</span>
-          <span className="favorite-item__edit">
+          <span
+            className="favorite-item__edit"
+            onClick={() => props.onSelect(fav)}
+          >
             <i className="fas fa-pen"></i>
           </span>
         </a>
@@ -48,8 +47,8 @@ function Favorites(props: {
   function connect(fav: Favorite) {
     const connection = {
       ...fav,
-      connectionId: (Math.random() + '').substring(2),
-    }
+      connectionId: (Math.random() + "").substring(2),
+    };
     window.mysql.connect(connection).then(() => props.onConnect(connection));
   }
 

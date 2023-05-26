@@ -8,7 +8,7 @@ export function ConnectionTabs(props: {
   onClose: (conn: Connection) => void;
 }) {
   return (
-    <div className="tabs">
+    <div className="tabs my-0">
       <ul className="mx-0 my-0">
         {props.connections.map((connection, ind) => (
           <li

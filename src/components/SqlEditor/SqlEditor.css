@@ -16,3 +16,17 @@
   font-family: monospace;
   resize: vertical;
 }
+
+.sql-editor .number {
+  
+    background-color: transparent;
+    border-radius: inherit;
+    display: inline;
+    font-size: inherit;
+    height: inherit;
+    margin-right: inherit;
+    min-width: inherit;
+    padding: 0;
+    text-align: inherit;
+    vertical-align: inherit;
+}

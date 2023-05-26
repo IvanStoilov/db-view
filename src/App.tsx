@@ -34,11 +34,11 @@ function App() {
     <div>
       <header>
         <nav className="navbar" role="navigation" aria-label="main navigation">
-          <div
-            className="navbar-brand"
-            onClick={() => setShowFavsMenu(!showFavsMenu)}
-          >
-            <span className="navbar-item">
+          <div className="navbar-brand">
+            <span
+              className="navbar-item"
+              onClick={() => setShowFavsMenu(!showFavsMenu)}
+            >
               <i className="fas fa-bars" style={{ fontSize: "1.5em" }}></i>
               &nbsp;&nbsp;DB Viewr
             </span>
@@ -73,7 +73,13 @@ function App() {
               />
             </div>
           )}
-          {connections.map(conn => <SqlEditor connection={conn} isVisible={conn === activeConnection} />)}
+          {connections.map((conn) => (
+            <SqlEditor
+              key={conn.connectionId}
+              connection={conn}
+              isVisible={conn === activeConnection}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -87,7 +93,7 @@ function App() {
 
   function closeConnection(connection: Connection) {
     mysql.close(connection).then(() => {
-      setConnections(connections.filter(c => c!==connection));
+      setConnections(connections.filter((c) => c !== connection));
       setActiveConnection(connections[0] || null);
     });
   }
