@@ -35,6 +35,18 @@ export function useConnections() {
           draft[connection.connectionId] = connection;
         })
       );
+
+      mysql.execute(connection.connectionId, "SHOW TABLES;").then((result) => {
+        const col = result.columns[0].name;
+        setItems((i) =>
+          produce(i, (draft) => {
+            draft[connection.connectionId].tables = result.data.map(
+              (d: any) => d[col]
+            );
+          })
+        );
+      });
+
       select(connection);
     });
   }
