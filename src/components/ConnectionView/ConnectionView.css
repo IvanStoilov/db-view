@@ -7,8 +7,10 @@
   flex: 1;
 }
 
-.sidebar {
+.connection-view__tables {
   width: 200px;
+  height: calc(100vh - 3.25rem); /* (100vh - header) */
+  overflow-y: auto;
   background-color: white;
   z-index: 10;
 }

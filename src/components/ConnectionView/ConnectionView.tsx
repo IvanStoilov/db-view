@@ -6,7 +6,7 @@ import "./ConnectionView.css";
 export function ConnectionView(props: {connection: Connection}) {
   return (
     <div className="connection-view">
-      <div className="sidebar">
+      <div className="connection-view__tables">
         <TableList connection={props.connection} />
       </div>
       <div className="connection-view__editor">

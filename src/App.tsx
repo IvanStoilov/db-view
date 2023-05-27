@@ -47,7 +47,7 @@ function App() {
             onAddFavorite={favorites.add}
           />
         </div>
-        <div className="content">
+        <div className="content-right">
           {favorites.selected && (
             <div className="box">
               <FavoriteForm
