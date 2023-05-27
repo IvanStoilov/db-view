@@ -9,28 +9,25 @@ export function ConnectionTabs(props: {
   onClose: (conn: Connection) => void;
 }) {
   return (
-    <div className="tabs my-0">
-      <ul className="mx-0 my-0">
+    <div className="navbar-menu">
+      <div className="navbar-start">
         {props.connections.map((connection, ind) => (
-          <li
+          <a
             key={connection.connectionId}
-            className={props.activeConnection === connection ? "is-active" : ""}
+            className={
+              "navbar-item" +
+              (props.activeConnection === connection ? " is-active" : "")
+            }
+            onClick={() => props.onActivate(connection)}
           >
-            <a onClick={() => props.onActivate(connection)}>
-              <span className="icon is-small">
-                <i className="fas fa-server"></i>
-              </span>
-              <span>
-                {connection.name}
-              </span>
-              <button
-                className="delete ml-2"
-                onClick={() => props.onClose(connection)}
-              ></button>
-            </a>
-          </li>
+            <span>{connection.name}</span>
+            <button
+              className="delete ml-2"
+              onClick={() => props.onClose(connection)}
+            ></button>
+          </a>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

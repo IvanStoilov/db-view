@@ -21,9 +21,15 @@ function App() {
               onClick={() => setShowFavsMenu(!showFavsMenu)}
             >
               <i className="fas fa-bars" style={{ fontSize: "1.5em" }}></i>
-              &nbsp;&nbsp;DB Viewr
             </span>
           </div>
+
+          <ConnectionTabs
+            connections={connections.items}
+            activeConnection={connections.selected}
+            onActivate={connections.select}
+            onClose={connections.close}
+          />
         </nav>
       </header>
       <div className="wrap">
@@ -34,7 +40,10 @@ function App() {
           <Favorites
             favorites={favorites.items}
             onSelect={favorites.select}
-            onConnect={connections.connect}
+            onConnect={(fav) => {
+              connections.connect(fav);
+              setShowFavsMenu(false);
+            }}
             onAddFavorite={favorites.add}
           />
         </div>
@@ -49,13 +58,9 @@ function App() {
               />
             </div>
           )}
-          <ConnectionTabs
-            connections={connections.items}
-            activeConnection={connections.selected}
-            onActivate={connections.select}
-            onClose={connections.close}
-          />
-          {connections.selected && <ConnectionView connection={connections.selected} />}
+          {connections.selected && (
+            <ConnectionView connection={connections.selected} />
+          )}
         </div>
       </div>
     </div>
