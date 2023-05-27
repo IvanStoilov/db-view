@@ -1,5 +1,5 @@
 import { AgGridReact } from "ag-grid-react";
-import React, { useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
@@ -9,6 +9,11 @@ import { useAppContext } from "../../hooks/AppContext";
 
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
+  const connectionIdRef = useRef(props.connection.connectionId);
+
+  useEffect(() => {
+    connectionIdRef.current = props.connection.connectionId;
+  }, [props.connection]);
 
   function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
     editor.onKeyDown((e) => onEditorKeyDown(e as any));
@@ -88,7 +93,12 @@ function SqlEditor(props: { connection: Connection }) {
       </div>
       {props.connection.error && (
         <div className="notification is-danger my-3">
-          <button className="delete" onClick={() => connections.clearError(props.connection.connectionId)}></button>
+          <button
+            className="delete"
+            onClick={() =>
+              connections.clearError(props.connection.connectionId)
+            }
+          ></button>
           {props.connection.error}
         </div>
       )}
@@ -109,7 +119,7 @@ function SqlEditor(props: { connection: Connection }) {
 
       sql = sql.substring(start, end).trim();
 
-      connections.execute(props.connection.connectionId, sql);
+      connections.execute(connectionIdRef.current, sql);
 
       event.preventDefault();
       event.stopPropagation();
