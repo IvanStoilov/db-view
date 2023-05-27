@@ -24,7 +24,9 @@ export function useConnections() {
       connectionId: (Math.random() + "").substring(2),
       query: "select * from address",
       queryResult: null,
+      error: null,
       tables: [],
+      isLoading: false,
     };
 
     mysql.connect(connection).then(() => {
@@ -56,30 +58,55 @@ export function useConnections() {
 
   function execute(connectionId: string, query: string) {
     console.debug(`Executing (${connectionId}): ${query}`);
+    setItems((i) =>
+      produce(i, (draft) => {
+        draft[connectionId].error = null;
+        draft[connectionId].isLoading = true;
+      })
+    );
 
-    mysql.execute(connectionId, query).then((queryResult) => {
-      console.debug(`Results (${connectionId})`, queryResult);
+    mysql
+      .execute(connectionId, query)
+      .then((queryResult) => {
+        console.debug(`Results (${connectionId})`, queryResult);
 
-      setItems(
-        produce(items, (draft) => {
-          draft[connectionId].queryResult = queryResult;
-        })
-      );
-    });
+        setItems((i) =>
+          produce(i, (draft) => {
+            draft[connectionId].queryResult = queryResult;
+            draft[connectionId].isLoading = false;
+          })
+        );
+      })
+      .catch((error) => {
+        setItems((i) =>
+          produce(i, (draft) => {
+            draft[connectionId].error = error.message;
+            draft[connectionId].isLoading = false;
+          })
+        );
+      });
   }
 
   function select(connection: Connection | null) {
-    setSelectedId(connection === null ? null : connection.connectionId);
+    setSelectedId(() => (connection === null ? null : connection.connectionId));
   }
 
   function setQuery(query: string) {
     if (selectedId) {
-      setItems(
-        produce(items, (draft) => {
+      setItems((i) =>
+        produce(i, (draft) => {
           draft[selectedId].query = query;
         })
       );
     }
+  }
+
+  function clearError(connectionId: string) {
+    setItems((i) =>
+      produce(i, (draft) => {
+        draft[connectionId].error = null;
+      })
+    );
   }
 
   return {
@@ -92,5 +119,6 @@ export function useConnections() {
     clearSelection,
     execute,
     setQuery,
+    clearError,
   };
 }

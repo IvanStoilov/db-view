@@ -1,7 +1,6 @@
 import { AgGridReact } from "ag-grid-react";
 import React, { useState } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
-
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -11,11 +10,54 @@ import { useAppContext } from "../../hooks/AppContext";
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
 
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
   function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
     editor.onKeyDown((e) => onEditorKeyDown(e as any));
+    // editor.addAction({
+    //   id: "execute-sql-query",
+    //   label: "Execute query",
+    //   keybindings: [KeyMod.CtrlCmd | KeyCode.KeyR],
+    //   keybindingContext: "textInputFocus",
+    //   run(editor, ...args) {
+    //     const pos = editor.getPosition();
+    //     const model = editor.getModel();
+    //     if (pos && model) {
+    //       console.log();
+    //       const prev = model.findPreviousMatch(
+    //         ";",
+    //         pos,
+    //         false,
+    //         false,
+    //         null,
+    //         false
+    //       );
+    //       const next = model.findNextMatch(";", pos, false, false, null, false);
+    //       console.log({ prev: prev?.range, next: next?.range });
+
+    //       const startPos: IPosition = {
+    //         column: prev?.range.endColumn || 0,
+    //         lineNumber: prev?.range.endLineNumber || 0,
+    //       };
+
+    //       const endPos: IPosition = {
+    //         column: model.getLineLastNonWhitespaceColumn(model.getLineCount()),
+    //         lineNumber: model.getLineCount(),
+    //       };
+
+    //       const range: IRange = {
+    //         startColumn: startPos.column,
+    //         startLineNumber: startPos.lineNumber,
+    //         endColumn: endPos.column,
+    //         endLineNumber: endPos.lineNumber,
+    //       };
+
+    //       const query = model.getValueInRange(range);
+    //       console.log(query);
+
+    //       connections.execute(props.connection.connectionId, query);
+    //     }
+    //   },
+    // });
+    // editor.onKeyDown((e) => onEditorKeyDown(e as any));
   }
 
   return (
@@ -44,41 +86,14 @@ function SqlEditor(props: { connection: Connection }) {
           preventDefaultOnContextMenu={true}
         ></AgGridReact>
       </div>
-      {error && (
+      {props.connection.error && (
         <div className="notification is-danger my-3">
-          <button className="delete" onClick={() => setError(null)}></button>
-          {error}
+          <button className="delete" onClick={() => connections.clearError(props.connection.connectionId)}></button>
+          {props.connection.error}
         </div>
       )}
     </div>
   );
-
-  function handleSubmit(query: string) {
-    setIsExecuting(true);
-    setError(null);
-
-    connections.execute(props.connection.connectionId, query);
-
-    // window.mysql
-    //   .execute(props.connection.connectionId, query)
-    //   .then((result: any) => {
-    //     console.debug(result);
-    //     setRowData(result.data);
-    //     setColumnDefs(
-    //       result.columns.map((col: any) => ({
-    //         field: col.name,
-    //         headerName: `${col.name} (${col.type})`,
-    //         editable: false,
-    //       }))
-    //     );
-    //     setIsExecuting(false);
-    //   })
-    //   .catch((error: Error) => {
-    //     console.error(error);
-    //     setError(error.message);
-    //     setIsExecuting(false);
-    //   });
-  }
 
   function onEditorKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (event.code === "Enter" && event.metaKey) {
@@ -94,7 +109,7 @@ function SqlEditor(props: { connection: Connection }) {
 
       sql = sql.substring(start, end).trim();
 
-      handleSubmit(sql);
+      connections.execute(props.connection.connectionId, sql);
 
       event.preventDefault();
       event.stopPropagation();

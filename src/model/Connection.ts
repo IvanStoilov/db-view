@@ -7,5 +7,7 @@ export type Connection = {
   connectionId: string;
   query: string;
   queryResult: QueryResult | null;
+  error: string | null;
+  isLoading: boolean;
   tables: string[];
 };
