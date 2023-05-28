@@ -1,8 +1,5 @@
 import React from "react";
 import { Connection } from "../../model/Connection";
-
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
 import { useAppContext } from "../../hooks/AppContext";
 
 function TableList(props: { connection: Connection }) {

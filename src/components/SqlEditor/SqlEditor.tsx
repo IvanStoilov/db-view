@@ -15,56 +15,6 @@ function SqlEditor(props: { connection: Connection }) {
     connectionIdRef.current = props.connection.connectionId;
   }, [props.connection]);
 
-  function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
-    editor.onKeyDown((e) => onEditorKeyDown(e as any));
-    // editor.addAction({
-    //   id: "execute-sql-query",
-    //   label: "Execute query",
-    //   keybindings: [KeyMod.CtrlCmd | KeyCode.KeyR],
-    //   keybindingContext: "textInputFocus",
-    //   run(editor, ...args) {
-    //     const pos = editor.getPosition();
-    //     const model = editor.getModel();
-    //     if (pos && model) {
-    //       console.log();
-    //       const prev = model.findPreviousMatch(
-    //         ";",
-    //         pos,
-    //         false,
-    //         false,
-    //         null,
-    //         false
-    //       );
-    //       const next = model.findNextMatch(";", pos, false, false, null, false);
-    //       console.log({ prev: prev?.range, next: next?.range });
-
-    //       const startPos: IPosition = {
-    //         column: prev?.range.endColumn || 0,
-    //         lineNumber: prev?.range.endLineNumber || 0,
-    //       };
-
-    //       const endPos: IPosition = {
-    //         column: model.getLineLastNonWhitespaceColumn(model.getLineCount()),
-    //         lineNumber: model.getLineCount(),
-    //       };
-
-    //       const range: IRange = {
-    //         startColumn: startPos.column,
-    //         startLineNumber: startPos.lineNumber,
-    //         endColumn: endPos.column,
-    //         endLineNumber: endPos.lineNumber,
-    //       };
-
-    //       const query = model.getValueInRange(range);
-    //       console.log(query);
-
-    //       connections.execute(props.connection.connectionId, query);
-    //     }
-    //   },
-    // });
-    // editor.onKeyDown((e) => onEditorKeyDown(e as any));
-  }
-
   return (
     <div className="sql-editor">
       <Editor
@@ -104,6 +54,10 @@ function SqlEditor(props: { connection: Connection }) {
       )}
     </div>
   );
+
+  function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
+    editor.onKeyDown((e) => onEditorKeyDown(e as any));
+  }
 
   function onEditorKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (event.code === "Enter" && event.metaKey) {
