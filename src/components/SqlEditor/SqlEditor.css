@@ -7,6 +7,7 @@
 .sql-editor__data {
   width: 100%;
   flex: 1;
+  padding-bottom: 5px;
 }
 
 .sql-editor textarea {
@@ -18,15 +19,18 @@
 }
 
 .sql-editor .number {
-  
-    background-color: transparent;
-    border-radius: inherit;
-    display: inline;
-    font-size: inherit;
-    height: inherit;
-    margin-right: inherit;
-    min-width: inherit;
-    padding: 0;
-    text-align: inherit;
-    vertical-align: inherit;
+  background-color: transparent;
+  border-radius: inherit;
+  display: inline;
+  font-size: inherit;
+  height: inherit;
+  margin-right: inherit;
+  min-width: inherit;
+  padding: 0;
+  text-align: inherit;
+  vertical-align: inherit;
+}
+
+.sql-editor .ag-ltr .ag-cell {
+  line-height: 25px;
 }
