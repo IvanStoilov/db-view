@@ -68,7 +68,11 @@ export function useConnections() {
     select(null);
   }
 
-  function execute(connectionId: string, query: string) {
+  function execute(
+    connectionId: string,
+    query: string,
+    updateLastQuery: boolean = true
+  ) {
     console.debug(`Executing (${connectionId}): ${query}`);
     setItems((i) =>
       produce(i, (draft) => {
@@ -80,11 +84,14 @@ export function useConnections() {
     mysql
       .execute(connectionId, query)
       .then((queryResult) => {
-        console.debug(`Results (${connectionId})`, queryResult);
-
         setItems((i) =>
           produce(i, (draft) => {
-            draft[connectionId].queryResult = queryResult;
+            draft[connectionId].queryResult = {
+              ...queryResult,
+              query: updateLastQuery
+                ? query
+                : draft[connectionId].queryResult?.query || query,
+            };
             draft[connectionId].isLoading = false;
           })
         );

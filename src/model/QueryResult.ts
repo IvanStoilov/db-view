@@ -4,4 +4,5 @@ export type QueryResult = {
     type: number;
   }>;
   data: any[];
+  query: string;
 };

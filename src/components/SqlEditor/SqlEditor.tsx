@@ -1,4 +1,5 @@
 import { AgGridReact } from "ag-grid-react";
+import { SortChangedEvent } from "ag-grid-community";
 import React, { useEffect, useRef } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
@@ -36,9 +37,12 @@ function SqlEditor(props: { connection: Connection }) {
             field: col.name,
             headerName: `${col.name} (${col.type})`,
             editable: false,
+            sortable: true,
           }))}
+          onSortChanged={handleSortChange}
           suppressContextMenu={true}
           preventDefaultOnContextMenu={true}
+          rowHeight={28}
         ></AgGridReact>
       </div>
       {props.connection.error && (
@@ -77,6 +81,29 @@ function SqlEditor(props: { connection: Connection }) {
 
       event.preventDefault();
       event.stopPropagation();
+    }
+  }
+
+  function handleSortChange(event: SortChangedEvent<any>) {
+    const order = event.columnApi
+      .getColumnState()
+      .filter((c) => c.sort)
+      .map((c) => `dbviewtemptable.\`${c.colId}\` ${c.sort}`)
+      .join(", ");
+
+    let sql = props.connection.queryResult?.query;
+    if (sql) {
+      let limitPos = sql.lastIndexOf("LIMIT");
+      let limitAddOn = "";
+      if (limitPos > -1) {
+        limitAddOn = sql.substring(limitPos);
+        sql = sql.substring(0, limitPos);
+      }
+      if (order) {
+        sql = `SELECT * FROM (${sql}) dbviewtemptable ORDER BY ${order}`;
+      }
+      sql = `${sql} ${limitAddOn}`;
+      connections.execute(connectionIdRef.current, sql, false);
     }
   }
 }
