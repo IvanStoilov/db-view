@@ -1,15 +1,20 @@
 import { AgGridReact } from "ag-grid-react";
 import { SortChangedEvent } from "ag-grid-community";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Connection } from "../../model/Connection";
 import { useAppContext } from "../../hooks/AppContext";
+import { ResizableBox } from "react-resizable";
+
+const EDITOR_HEIGHT_INITIAL = 100;
+
 
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
+  const [ editorHeight, setEditorHeight ] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.connectionId);
 
   useEffect(() => {
@@ -18,19 +23,29 @@ function SqlEditor(props: { connection: Connection }) {
 
   return (
     <div className="sql-editor">
-      <Editor
-        value={props.connection.query}
-        height="200px"
-        defaultLanguage="sql"
-        onChange={(v) => connections.setQuery(v || "")}
-        onMount={handleOnEditorMount}
-        options={{
-          minimap: {
-            enabled: false,
-          },
-        }}
-      ></Editor>
-      <div className="sql-editor__data ag-theme-alpine">
+      <ResizableBox
+        height={EDITOR_HEIGHT_INITIAL}
+        minConstraints={[0, 50]}
+        onResize={(event, { size }) => setEditorHeight(size.height)}
+        axis="y"
+        handle={(handleAxis, ref) => <div className="sql-editor__resize-handle" ref={ref}><div className="sql-editor__resize-handle-inner has-background-light"></div></div>}
+      >
+        <Editor
+          value={props.connection.query}
+          height={editorHeight}
+          defaultLanguage="sql"
+          onChange={(v) => connections.setQuery(v || "")}
+          onMount={handleOnEditorMount}
+          options={{
+            minimap: {
+              enabled: false,
+            },
+          }}
+        ></Editor>
+      </ResizableBox>
+      <div className="sql-editor__data ag-theme-alpine" style={{
+        height: `calc(100% - 6px - ${editorHeight}px)`
+      }}>
         <AgGridReact
           rowData={props.connection.queryResult?.data}
           columnDefs={props.connection.queryResult?.columns.map((col) => ({
@@ -42,15 +57,16 @@ function SqlEditor(props: { connection: Connection }) {
             cellRenderer: (data: any) => {
               const value = data.getValue();
               if (value instanceof Date) {
-                return value.toISOString().replace('T', ' ').substring(0, 19)
+                return value.toISOString().replace("T", " ").substring(0, 19);
               }
               return value;
-          }    
+            },
           }))}
           onSortChanged={handleSortChange}
           suppressContextMenu={true}
           preventDefaultOnContextMenu={true}
           rowHeight={28}
+          onNewColumnsLoaded={(e) => e.columnApi.autoSizeAllColumns()}
         ></AgGridReact>
       </div>
       {props.connection.error && (
