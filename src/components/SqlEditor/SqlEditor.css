@@ -45,3 +45,8 @@
 .sql-editor .ag-root-wrapper {
   border: none;
 }
+
+.sql-editor__error {
+ position: absolute; 
+ bottom: 0;
+}

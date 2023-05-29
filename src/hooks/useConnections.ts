@@ -81,9 +81,10 @@ export function useConnections() {
       })
     );
 
-    mysql
+    return mysql
       .execute(connectionId, query)
       .then((queryResult) => {
+        console.debug("Result", queryResult);
         setItems((i) =>
           produce(i, (draft) => {
             draft[connectionId].queryResult = {
@@ -97,6 +98,7 @@ export function useConnections() {
         );
       })
       .catch((error) => {
+        console.error(error);
         setItems((i) =>
           produce(i, (draft) => {
             draft[connectionId].error = error.message;

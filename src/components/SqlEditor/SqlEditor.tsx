@@ -1,7 +1,7 @@
-import { AgGridReact } from "ag-grid-react";
+import { AgGridReact, AgGridReactProps } from "ag-grid-react";
 import { SortChangedEvent } from "ag-grid-community";
 import React, { useEffect, useRef, useState } from "react";
-import { Editor, OnMount } from "@monaco-editor/react";
+import { Editor, Monaco, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -17,6 +17,30 @@ function SqlEditor(props: { connection: Connection }) {
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.connectionId);
   const grid = useRef<AgGridReact | null>(null);
+
+  const agGridProps: AgGridReactProps = {
+    rowData: props.connection.queryResult?.data,
+    columnDefs: props.connection.queryResult?.columns.map((col) => ({
+      field: col.name,
+      headerName: `${col.name} (${col.type})`,
+      editable: false,
+      sortable: true,
+      resizable: true,
+      cellRenderer: cellRenderer,
+    })),
+    onSortChanged: handleSortChange,
+    suppressContextMenu: true,
+    preventDefaultOnContextMenu: true,
+    rowHeight: 28,
+    onNewColumnsLoaded: (e) => e.columnApi.autoSizeAllColumns(),
+    enableCellTextSelection: true,
+    suppressCellFocus: true,
+    loadingOverlayComponent: CustomLoadingOverlay,
+    loadingOverlayComponentParams: {
+      onCancel: () => mysql.cancelExecution(connectionIdRef.current),
+    },
+    onGridReady: (e) => e.api.hideOverlay(),
+  };
 
   useEffect(() => {
     connectionIdRef.current = props.connection.connectionId;
@@ -54,33 +78,10 @@ function SqlEditor(props: { connection: Connection }) {
           height: `calc(100% - 6px - ${editorHeight}px)`,
         }}
       >
-        <AgGridReact
-          ref={grid}
-          rowData={props.connection.queryResult?.data}
-          columnDefs={props.connection.queryResult?.columns.map((col) => ({
-            field: col.name,
-            headerName: `${col.name} (${col.type})`,
-            editable: false,
-            sortable: true,
-            resizable: true,
-            cellRenderer: cellRenderer,
-          }))}
-          onSortChanged={handleSortChange}
-          suppressContextMenu={true}
-          preventDefaultOnContextMenu={true}
-          rowHeight={28}
-          onNewColumnsLoaded={(e) => e.columnApi.autoSizeAllColumns()}
-          enableCellTextSelection={true}
-          suppressCellFocus={true}
-          loadingOverlayComponent={CustomLoadingOverlay}
-          loadingOverlayComponentParams={{
-            onCancel: () => mysql.cancelExecution(connectionIdRef.current),
-          }}
-          onGridReady={e => e.api.hideOverlay()}
-        ></AgGridReact>
+        <AgGridReact ref={grid} {...agGridProps}></AgGridReact>
       </div>
       {props.connection.error && (
-        <div className="notification is-danger my-3">
+        <div className="sql-query__error notification is-danger my-3">
           <button
             className="delete"
             onClick={() =>
@@ -112,7 +113,9 @@ function SqlEditor(props: { connection: Connection }) {
       sql = sql.substring(start, end).trim();
 
       grid.current?.api.showLoadingOverlay();
-      connections.execute(connectionIdRef.current, sql);
+      connections.execute(connectionIdRef.current, sql).finally(() => {
+        grid.current?.api.hideOverlay();
+      });
 
       event.preventDefault();
       event.stopPropagation();
