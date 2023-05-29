@@ -6,6 +6,7 @@ type MysqlClient = {
   connect(connection: Connection): Promise<void>;
   close(connectionId: string): Promise<void>;
   execute(connectionId: string, query: string): Promise<QueryResult>;
+  cancelExecution(connectionId: string): Promise<void>;
 };
 
 type Storage = {

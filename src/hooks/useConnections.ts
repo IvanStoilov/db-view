@@ -22,7 +22,7 @@ export function useConnections() {
       favorite,
       name: favorite.name + suffix,
       connectionId: (Math.random() + "").substring(2),
-      query: "select * from address",
+      query: "select sleep(2)",
       queryResult: null,
       error: null,
       tables: [],

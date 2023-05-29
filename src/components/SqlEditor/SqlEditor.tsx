@@ -8,6 +8,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Connection } from "../../model/Connection";
 import { useAppContext } from "../../hooks/AppContext";
 import { ResizableBox } from "react-resizable";
+import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -15,6 +16,7 @@ function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.connectionId);
+  const grid = useRef<AgGridReact | null>(null);
 
   useEffect(() => {
     connectionIdRef.current = props.connection.connectionId;
@@ -53,6 +55,7 @@ function SqlEditor(props: { connection: Connection }) {
         }}
       >
         <AgGridReact
+          ref={grid}
           rowData={props.connection.queryResult?.data}
           columnDefs={props.connection.queryResult?.columns.map((col) => ({
             field: col.name,
@@ -69,6 +72,11 @@ function SqlEditor(props: { connection: Connection }) {
           onNewColumnsLoaded={(e) => e.columnApi.autoSizeAllColumns()}
           enableCellTextSelection={true}
           suppressCellFocus={true}
+          loadingOverlayComponent={CustomLoadingOverlay}
+          loadingOverlayComponentParams={{
+            onCancel: () => mysql.cancelExecution(connectionIdRef.current),
+          }}
+          onGridReady={e => e.api.hideOverlay()}
         ></AgGridReact>
       </div>
       {props.connection.error && (
@@ -103,6 +111,7 @@ function SqlEditor(props: { connection: Connection }) {
 
       sql = sql.substring(start, end).trim();
 
+      grid.current?.api.showLoadingOverlay();
       connections.execute(connectionIdRef.current, sql);
 
       event.preventDefault();

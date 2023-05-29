@@ -11,7 +11,8 @@ contextBridge.exposeInMainWorld("mysql", {
   connect: (favorite) => ipcRenderer.invoke("mysqlConnect", favorite),
   close: (connectionId) => ipcRenderer.invoke("mysqlClose", connectionId),
   execute: (connectionId, query) =>
-    ipcRenderer.invoke("mysqlExecute", connectionId, query),
+  ipcRenderer.invoke("mysqlExecute", connectionId, query),
+  cancelExecution: (connectionId) => ipcRenderer.invoke("mysqlCancelExecution", connectionId),
 });
 
 contextBridge.exposeInMainWorld("storage", {
