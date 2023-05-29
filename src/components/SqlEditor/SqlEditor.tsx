@@ -11,10 +11,9 @@ import { ResizableBox } from "react-resizable";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
-
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
-  const [ editorHeight, setEditorHeight ] = useState(EDITOR_HEIGHT_INITIAL);
+  const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.connectionId);
 
   useEffect(() => {
@@ -28,7 +27,11 @@ function SqlEditor(props: { connection: Connection }) {
         minConstraints={[0, 50]}
         onResize={(event, { size }) => setEditorHeight(size.height)}
         axis="y"
-        handle={(handleAxis, ref) => <div className="sql-editor__resize-handle" ref={ref}><div className="sql-editor__resize-handle-inner has-background-light"></div></div>}
+        handle={(handleAxis, ref) => (
+          <div className="sql-editor__resize-handle" ref={ref}>
+            <div className="sql-editor__resize-handle-inner has-background-light"></div>
+          </div>
+        )}
       >
         <Editor
           value={props.connection.query}
@@ -43,9 +46,12 @@ function SqlEditor(props: { connection: Connection }) {
           }}
         ></Editor>
       </ResizableBox>
-      <div className="sql-editor__data ag-theme-alpine" style={{
-        height: `calc(100% - 6px - ${editorHeight}px)`
-      }}>
+      <div
+        className="sql-editor__data ag-theme-alpine"
+        style={{
+          height: `calc(100% - 6px - ${editorHeight}px)`,
+        }}
+      >
         <AgGridReact
           rowData={props.connection.queryResult?.data}
           columnDefs={props.connection.queryResult?.columns.map((col) => ({
@@ -54,19 +60,15 @@ function SqlEditor(props: { connection: Connection }) {
             editable: false,
             sortable: true,
             resizable: true,
-            cellRenderer: (data: any) => {
-              const value = data.getValue();
-              if (value instanceof Date) {
-                return value.toISOString().replace("T", " ").substring(0, 19);
-              }
-              return value;
-            },
+            cellRenderer: cellRenderer,
           }))}
           onSortChanged={handleSortChange}
           suppressContextMenu={true}
           preventDefaultOnContextMenu={true}
           rowHeight={28}
           onNewColumnsLoaded={(e) => e.columnApi.autoSizeAllColumns()}
+          enableCellTextSelection={true}
+          suppressCellFocus={true}
         ></AgGridReact>
       </div>
       {props.connection.error && (
@@ -129,6 +131,14 @@ function SqlEditor(props: { connection: Connection }) {
       sql = `${sql} ${limitAddOn}`;
       connections.execute(connectionIdRef.current, sql, false);
     }
+  }
+
+  function cellRenderer(data: any) {
+    const value = data.getValue();
+    if (value instanceof Date) {
+      return value.toISOString().replace("T", " ").substring(0, 19);
+    }
+    return value;
   }
 }
 
