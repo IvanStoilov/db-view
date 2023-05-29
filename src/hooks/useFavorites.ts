@@ -17,6 +17,7 @@ export function useFavorites() {
       host: "",
       password: "",
       user: "",
+      timezone: "UTC",
     };
 
     storage.set(newFavorite.favoriteId, newFavorite);

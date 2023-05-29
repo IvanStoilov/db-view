@@ -5,4 +5,5 @@ export type Favorite = {
   password: string;
   host: string;
   database: string;
+  timezone: string;
 };
