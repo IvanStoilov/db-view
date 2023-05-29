@@ -38,6 +38,14 @@ function SqlEditor(props: { connection: Connection }) {
             headerName: `${col.name} (${col.type})`,
             editable: false,
             sortable: true,
+            resizable: true,
+            cellRenderer: (data: any) => {
+              const value = data.getValue();
+              if (value instanceof Date) {
+                return value.toISOString().replace('T', ' ').substring(0, 19)
+              }
+              return value;
+          }    
           }))}
           onSortChanged={handleSortChange}
           suppressContextMenu={true}
