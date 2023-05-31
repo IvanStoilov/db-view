@@ -140,7 +140,7 @@ export function useConnections() {
 
   function switchDatabase(db: string) {
     if (selectedId) {
-      mysql.execute(selectedId, `USE ${db}`).then(() => {
+      return mysql.execute(selectedId, `USE ${db}`).then(() => {
         reloadMeta(selectedId);
 
         setItems((i) =>
@@ -150,6 +150,8 @@ export function useConnections() {
         );
       });
     }
+
+    return Promise.resolve();
   }
 
   function reloadMeta(connectionId: string) {

@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../hooks/AppContext";
 
+const SYSTEM_DB: Record<string, true> = {
+  information_schema: true,
+  mysql: true,
+  performance_schema: true,
+  sys: true,
+};
+
 export function DatabaseSwitcher(props: {
   databases: string[];
   currentDatabase: string;
@@ -35,28 +42,37 @@ export function DatabaseSwitcher(props: {
       </div>
       <div className="dropdown-menu" id="dropdown-menu" role="menu">
         <div className="dropdown-content">
-          {props.databases.map((db) => (
-            <a
-              onClick={() => switchDatabase(db)}
-              className={
-                "dropdown-item" +
-                (db === props.currentDatabase ? " is-active" : "")
-              }
-            >
-              {db}
-            </a>
-          ))}
+          {getDatabases().map(getItem)}
           <hr className="dropdown-divider" />
-          <a href="#" className="dropdown-item">
-            With a divider
-          </a>
+          {getSystemDatabases().map(getItem)}
         </div>
       </div>
     </div>
   );
 
+  function getItem(db: string) {
+    return (
+      <a
+        key={db}
+        onClick={() => switchDatabase(db)}
+        className={
+          "dropdown-item" + (db === props.currentDatabase ? " is-active" : "")
+        }
+      >
+        {db}
+      </a>
+    );
+  }
+
   function onOutsideClick() {
     setIsOpen(false);
+  }
+
+  function getDatabases() {
+    return props.databases.filter(db => !SYSTEM_DB[db]);
+  }
+  function getSystemDatabases() {
+    return props.databases.filter(db => !!SYSTEM_DB[db]);
   }
 
   async function switchDatabase(db: string) {

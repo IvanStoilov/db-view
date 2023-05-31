@@ -10,6 +10,7 @@ import { useAppContext } from "../../hooks/AppContext";
 import { ResizableBox } from "react-resizable";
 import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";
+import { GridCustomHeader } from "./GridCustomHeader";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -23,7 +24,10 @@ function SqlEditor(props: { connection: Connection }) {
     rowData: props.connection.queryResult?.data,
     columnDefs: props.connection.queryResult?.columns.map((col) => ({
       field: col.name,
-      headerName: `${col.name} (${col.type})`,
+      headerName: `${col.name} (${col.type.toLowerCase()})`,
+      headerTooltip: `${col.name} (${col.type.toLowerCase()})`,
+      headerComponent: GridCustomHeader,
+      headerComponentParams: { type: col.type.toLowerCase() },
       editable: false,
       sortable: true,
       resizable: true,

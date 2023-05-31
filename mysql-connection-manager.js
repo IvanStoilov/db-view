@@ -1,6 +1,37 @@
 const mysql = require("mysql2/promise");
 const { ipcMain } = require("electron");
 
+const TYPE_ID_TO_NAME = {
+  0: "DECIMAL",
+  1: "TINY",
+  2: "SHORT",
+  3: "LONG",
+  4: "FLOAT",
+  5: "DOUBLE",
+  6: "NULL",
+  7: "TIMESTAMP",
+  8: "LONGLONG",
+  9: "INT24",
+  10: "DATE",
+  11: "TIME",
+  12: "DATETIME",
+  13: "YEAR",
+  14: "NEWDATE",
+  15: "VARCHAR",
+  16: "BIT",
+  245: "JSON",
+  246: "NEWDECIMAL",
+  247: "ENUM",
+  248: "SET",
+  249: "TINY_BLOB",
+  250: "MEDIUM_BLOB",
+  251: "LONG_BLOB",
+  252: "BLOB",
+  253: "VARCHAR",
+  254: "STRING",
+  255: "GEOMETRY",
+};
+
 class MysqlConnectionManager {
   constructor() {
     this.connections = {};
@@ -59,9 +90,13 @@ class MysqlConnectionManager {
 
     const mysqlConnection = await this.getMysqlConnection(connectionId);
 
-    return mysqlConnection
-      .query(query)
-      .then((result) => ({ data: result[0], columns: result[1] }));
+    return mysqlConnection.query(query).then((result) => ({
+      data: result[0],
+      columns: !result[1] ? null : result[1].map((col) => ({
+        ...col,
+        type: TYPE_ID_TO_NAME[col.type] || "UNKNOWN",
+      })),
+    }));
   }
 
   /**
@@ -84,7 +119,7 @@ class MysqlConnectionManager {
    */
   async closeAllConnection() {
     for (const connectionId of Object.keys(this.connections)) {
-      await this.close(null, connectionId)
+      await this.close(null, connectionId);
     }
   }
 
