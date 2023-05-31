@@ -10,4 +10,6 @@ export type Connection = {
   error: string | null;
   isLoading: boolean;
   tables: string[];
+  databases: string[];
+  currentDatabase: string;
 };

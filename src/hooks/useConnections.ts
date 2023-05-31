@@ -26,6 +26,8 @@ export function useConnections() {
       queryResult: null,
       error: null,
       tables: [],
+      databases: [],
+      currentDatabase: favorite.database,
       isLoading: false,
     };
 
@@ -36,16 +38,7 @@ export function useConnections() {
         })
       );
 
-      mysql.execute(connection.connectionId, "SHOW TABLES;").then((result) => {
-        const col = result.columns[0].name;
-        setItems((i) =>
-          produce(i, (draft) => {
-            draft[connection.connectionId].tables = result.data.map(
-              (d: any) => d[col]
-            );
-          })
-        );
-      });
+      reloadMeta(connection.connectionId);
 
       select(connection);
     });
@@ -145,6 +138,40 @@ export function useConnections() {
     );
   }
 
+  function switchDatabase(db: string) {
+    if (selectedId) {
+      mysql.execute(selectedId, `USE ${db}`).then(() => {
+        reloadMeta(selectedId);
+
+        setItems((i) =>
+          produce(i, (draft) => {
+            draft[selectedId].currentDatabase = db;
+          })
+        );
+      });
+    }
+  }
+
+  function reloadMeta(connectionId: string) {
+    mysql.execute(connectionId, "SHOW TABLES;").then((result) => {
+      const col = result.columns[0].name;
+      setItems((i) =>
+        produce(i, (draft) => {
+          draft[connectionId].tables = result.data.map((d: any) => d[col]);
+        })
+      );
+    });
+
+    mysql.execute(connectionId, "SHOW SCHEMAS;").then((result) => {
+      const col = result.columns[0].name;
+      setItems((i) =>
+        produce(i, (draft) => {
+          draft[connectionId].databases = result.data.map((d: any) => d[col]);
+        })
+      );
+    });
+  }
+
   return {
     items: itemsArray,
     selected,
@@ -156,5 +183,6 @@ export function useConnections() {
     execute,
     setQuery,
     clearError,
+    switchDatabase,
   };
 }
