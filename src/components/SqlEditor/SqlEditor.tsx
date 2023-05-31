@@ -1,7 +1,7 @@
 import { AgGridReact, AgGridReactProps } from "ag-grid-react";
 import { SortChangedEvent } from "ag-grid-community";
 import React, { useEffect, useRef, useState } from "react";
-import { Editor, Monaco, OnMount } from "@monaco-editor/react";
+import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -9,6 +9,7 @@ import { Connection } from "../../model/Connection";
 import { useAppContext } from "../../hooks/AppContext";
 import { ResizableBox } from "react-resizable";
 import { CustomLoadingOverlay } from "./GridLoadingOverlay";
+import { StatusBar } from "./StatusBar";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -75,13 +76,16 @@ function SqlEditor(props: { connection: Connection }) {
       <div
         className="sql-editor__data ag-theme-alpine"
         style={{
-          height: `calc(100% - 6px - ${editorHeight}px)`,
+          height: `calc(100% - 6px - ${editorHeight}px - 24px)`,
         }}
       >
         <AgGridReact ref={grid} {...agGridProps}></AgGridReact>
       </div>
+      <div style={{ height: "24px" }}>
+        <StatusBar result={props.connection.queryResult} />
+      </div>
       {props.connection.error && (
-        <div className="sql-query__error notification is-danger my-3">
+        <div className="sql-editor__error notification is-danger my-3">
           <button
             className="delete"
             onClick={() =>

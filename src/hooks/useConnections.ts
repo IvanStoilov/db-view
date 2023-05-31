@@ -87,12 +87,27 @@ export function useConnections() {
         console.debug("Result", queryResult);
         setItems((i) =>
           produce(i, (draft) => {
-            draft[connectionId].queryResult = {
-              ...queryResult,
-              query: updateLastQuery
-                ? query
-                : draft[connectionId].queryResult?.query || query,
-            };
+            const currentQueryResult = draft[connectionId].queryResult;
+            if (queryResult.columns) {
+              // Select query
+              draft[connectionId].queryResult = {
+                columns: queryResult.columns,
+                data: queryResult.data,
+                query: updateLastQuery
+                  ? query
+                  : currentQueryResult?.query || query,
+                ddlStatus: null,
+              };
+            } else {
+              // DDL query
+              draft[connectionId].queryResult = {
+                columns: currentQueryResult?.columns || [],
+                data: currentQueryResult?.data || [],
+                query: draft[connectionId].queryResult?.query || "",
+                ddlStatus: queryResult.data as any,
+              };
+            }
+
             draft[connectionId].isLoading = false;
           })
         );

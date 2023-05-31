@@ -15,11 +15,7 @@ function TableList(props: { connection: Connection }) {
           onChange={(e) => setFilter(e.target.value)}
         />
       </div>
-      <ul className="menu-list">
-        {props.connection.tables
-          .filter((table) => !filter || table.match(new RegExp(filter, 'i')))
-          .map(getTableItem)}
-      </ul>
+      <ul className="menu-list">{getFilteredTables().map(getTableItem)}</ul>
     </aside>
   );
 
@@ -37,6 +33,19 @@ function TableList(props: { connection: Connection }) {
     connections.execute(
       props.connection.connectionId,
       `SELECT * FROM \`${tableName}\` LIMIT 100`
+    );
+  }
+
+  function getFilteredTables() {
+    let filterFn = (table: string) => table.indexOf(filter) > -1;
+
+    try {
+      const regexp = new RegExp(filter, "i");
+      filterFn = (table: string) => table.match(regexp) !== null;
+    } catch {}
+
+    return props.connection.tables.filter(
+      (table) => !filter || filterFn(table)
     );
   }
 }
