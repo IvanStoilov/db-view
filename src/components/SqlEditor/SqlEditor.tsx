@@ -31,7 +31,7 @@ function SqlEditor(props: { connection: Connection }) {
       editable: false,
       sortable: true,
       resizable: true,
-      cellRenderer: cellRenderer,
+      cellRenderer: (cell: any) => cellRenderer(cell, col.type.toLowerCase()),
     })),
     onSortChanged: handleSortChange,
     suppressContextMenu: true,
@@ -153,10 +153,13 @@ function SqlEditor(props: { connection: Connection }) {
     }
   }
 
-  function cellRenderer(data: any) {
+  function cellRenderer(data: any, colType: string) {
     const value = data.getValue();
     if (value instanceof Date) {
       return value.toISOString().replace("T", " ").substring(0, 19);
+    }
+    if (colType === 'json') {
+      return JSON.stringify(value);
     }
     return value;
   }
