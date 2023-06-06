@@ -1,5 +1,5 @@
 import { AgGridReact, AgGridReactProps } from "ag-grid-react";
-import { SortChangedEvent } from "ag-grid-community";
+import { SortChangedEvent, CellEditingStoppedEvent } from "ag-grid-community";
 import React, { useEffect, useRef, useState } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
@@ -11,28 +11,40 @@ import { ResizableBox } from "react-resizable";
 import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";
 import { GridCustomHeader } from "./GridCustomHeader";
+import SqlString from "sqlstring";
+import ModalDialog, { ModalDialogHandle } from "../common/ModalDialog";
 
 const EDITOR_HEIGHT_INITIAL = 100;
+
+// Hack to please sqlstring
+window.Buffer = {
+  isBuffer: () => false,
+} as any;
 
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.connectionId);
   const grid = useRef<AgGridReact | null>(null);
+  const confirmChangeDialogRef = useRef<ModalDialogHandle | null>(null);
 
   const agGridProps: AgGridReactProps = {
     rowData: props.connection.queryResult?.data,
     columnDefs: props.connection.queryResult?.columns.map((col) => ({
       field: col.name,
+      type: col.type.toLowerCase(),
       headerName: `${col.name} (${col.type.toLowerCase()})`,
       headerTooltip: `${col.name} (${col.type.toLowerCase()})`,
       headerComponent: GridCustomHeader,
       headerComponentParams: { type: col.type.toLowerCase() },
-      editable: false,
+      editable: true,
       sortable: true,
       resizable: true,
       cellRenderer: (cell: any) => cellRenderer(cell, col.type.toLowerCase()),
     })),
+    stopEditingWhenCellsLoseFocus: true,
+    readOnlyEdit: true,
+    onCellEditingStopped,
     onSortChanged: handleSortChange,
     suppressContextMenu: true,
     preventDefaultOnContextMenu: true,
@@ -99,6 +111,7 @@ function SqlEditor(props: { connection: Connection }) {
           {props.connection.error}
         </div>
       )}
+      <ModalDialog ref={confirmChangeDialogRef}></ModalDialog>
     </div>
   );
 
@@ -158,10 +171,70 @@ function SqlEditor(props: { connection: Connection }) {
     if (value instanceof Date) {
       return value.toISOString().replace("T", " ").substring(0, 19);
     }
-    if (colType === 'json') {
+    if (colType === "json") {
       return JSON.stringify(value);
     }
     return value;
+  }
+
+  async function onCellEditingStopped(event: CellEditingStoppedEvent<any>) {
+    if (event.newValue === event.oldValue) {
+      return;
+    }
+
+    const columns = props.connection.queryResult?.columns || [];
+    const columnData = columns.find((c) => c.name === event.colDef.field);
+
+    if (columns.length && columnData && event.colDef.field) {
+      const field = event.colDef.field;
+      const table = columnData.table;
+      const db = columnData.db;
+
+      const result = await mysql.execute(
+        props.connection.connectionId,
+        `
+      SELECT COLUMN_NAME as col
+      FROM information_schema.COLUMNS
+      WHERE TABLE_NAME = '${table}' 
+        AND TABLE_SCHEMA = '${db}' 
+        AND COLUMN_KEY = 'PRI'
+      `
+      );
+
+      if (result.data.length > 0) {
+        const primaryKeyColumns = result.data.map((d) => d.col);
+        const primaryKeyValues = primaryKeyColumns.map(
+          (col) => event.data[col]
+        );
+
+        if (primaryKeyValues.every((v) => typeof v !== "undefined")) {
+          const where = primaryKeyColumns
+            .map((col) => `${col} = ?`)
+            .join(" AND ");
+          const newSql = SqlString.format(`UPDATE ? SET ? = ? WHERE ${where}`, [
+            SqlString.raw(table),
+            SqlString.raw(field),
+            event.newValue,
+            ...primaryKeyValues,
+          ]);
+
+          confirmChangeDialogRef.current?.open({
+            content: (<span><p className="mb-3">The following query will be executed:</p><pre>{newSql}</pre></span>),
+            onOk: async () => {
+              await connections.execute(props.connection.connectionId, newSql);
+              event.node.setData({
+                ...event.node.data,
+                [field]: event.newValue,
+              });
+            },
+          });
+        } else {
+          confirmChangeDialogRef.current?.open({
+            content: 'This field cannot be modified because the primary key is not present in the result set.'
+          });
+        }
+      }
+    }
   }
 }
 

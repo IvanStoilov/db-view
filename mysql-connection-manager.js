@@ -93,8 +93,12 @@ class MysqlConnectionManager {
     return mysqlConnection.query(query).then((result) => ({
       data: result[0],
       columns: !result[1] ? null : result[1].map((col) => ({
-        ...col,
+        name: col.name,
         type: TYPE_ID_TO_NAME[col.type] || "UNKNOWN",
+        table: col.orgTable,
+        db: col.db,
+        flags: col.flags,
+        catalog: col.catalog
       })),
     }));
   }
@@ -123,6 +127,11 @@ class MysqlConnectionManager {
     }
   }
 
+  /**
+   * 
+   * @param {*} connectionId 
+   * @returns {mysql.Connection}
+   */
   async getMysqlConnection(connectionId) {
     return (await this.getConnection(connectionId)).mysqlConnection;
   }

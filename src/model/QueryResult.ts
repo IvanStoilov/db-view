@@ -2,6 +2,8 @@ export type QueryResult = {
   columns: Array<{
     name: string;
     type: string;
+    db: string;
+    table: string;
   }>;
   data: any[];
   query: string;
