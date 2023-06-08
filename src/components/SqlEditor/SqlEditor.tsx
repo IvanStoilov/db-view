@@ -116,14 +116,22 @@ function SqlEditor(props: { connection: Connection }) {
   );
 
   function handleOnEditorMount(editor: Parameters<OnMount>[0]) {
-    editor.onKeyDown((e) => onEditorKeyDown(e as any));
+    editor.onKeyDown((e) => {
+      onEditorKeyDown(e as any, editor);
+    });
   }
 
-  function onEditorKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+  function onEditorKeyDown(
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+    editor: Parameters<OnMount>[0]
+  ) {
     if (event.code === "Enter" && event.metaKey) {
-      const textarea = event.target as HTMLTextAreaElement;
-      let sql = textarea.value;
-      const selectionStart = textarea.selectionStart;
+      const pos = editor.getPosition();
+      const selectionStart =
+        editor.getModel()?.getOffsetAt(pos || { lineNumber: 1, column: 1 }) ||
+        0;
+
+      let sql = editor.getValue().trim().replace(/;+$/g, '');
 
       let start = sql.substring(0, selectionStart).lastIndexOf(";");
       start = start === -1 ? 0 : start + 1;
@@ -219,7 +227,12 @@ function SqlEditor(props: { connection: Connection }) {
           ]);
 
           confirmChangeDialogRef.current?.open({
-            content: (<span><p className="mb-3">The following query will be executed:</p><pre>{newSql}</pre></span>),
+            content: (
+              <span>
+                <p className="mb-3">The following query will be executed:</p>
+                <pre>{newSql}</pre>
+              </span>
+            ),
             onOk: async () => {
               await connections.execute(props.connection.connectionId, newSql);
               event.node.setData({
@@ -230,7 +243,8 @@ function SqlEditor(props: { connection: Connection }) {
           });
         } else {
           confirmChangeDialogRef.current?.open({
-            content: 'This field cannot be modified because the primary key is not present in the result set.'
+            content:
+              "This field cannot be modified because the primary key is not present in the result set.",
           });
         }
       }
