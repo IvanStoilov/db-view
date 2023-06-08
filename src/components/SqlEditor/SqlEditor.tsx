@@ -132,7 +132,7 @@ function SqlEditor(props: { connection: Connection }) {
         editor.getModel()?.getOffsetAt(pos || { lineNumber: 1, column: 1 }) ||
         0;
 
-      let sql = editor.getValue().trim().replace(/;+$/g, '');
+      let sql = editor.getValue().trim().replace(/;+$/g, "");
 
       let start = sql.substring(0, selectionStart).lastIndexOf(";");
       start = start === -1 ? 0 : start + 1;
@@ -180,9 +180,13 @@ function SqlEditor(props: { connection: Connection }) {
     if (value instanceof Date) {
       return value.toISOString().replace("T", " ").substring(0, 19);
     }
+    if (value === null) {
+      return "NULL";
+    }
     if (colType === "json") {
       return JSON.stringify(value);
     }
+    
     return value;
   }
 
