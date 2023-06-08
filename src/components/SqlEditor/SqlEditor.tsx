@@ -42,6 +42,7 @@ function SqlEditor(props: { connection: Connection }) {
       resizable: true,
       cellRenderer: (cell: any) => cellRenderer(cell, col.type.toLowerCase()),
     })),
+    suppressFieldDotNotation: true,
     stopEditingWhenCellsLoseFocus: true,
     readOnlyEdit: true,
     onCellEditingStopped,
