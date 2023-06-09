@@ -1,13 +1,5 @@
-import { Connection } from "./Connection";
+import type { DbClient } from "../../shared/db-client";
 import { Favorite } from "./Favorite";
-import { QueryResult } from "./QueryResult";
-
-type MysqlClient = {
-  connect(connection: Connection): Promise<void>;
-  close(connectionId: string): Promise<void>;
-  execute(connectionId: string, query: string): Promise<QueryResult>;
-  cancelExecution(connectionId: string): Promise<void>;
-};
 
 type Storage = {
   set(key: string, value: Favorite): Promise<void>;
@@ -16,11 +8,11 @@ type Storage = {
 };
 
 declare global {
-  var mysql: MysqlClient;
+  var dbClient: DbClient;
   var storage: Storage;
 
   interface Window {
-    mysql: MysqlClient;
+    dbClient: DbClient;
     storage: Storage;
   }
 }

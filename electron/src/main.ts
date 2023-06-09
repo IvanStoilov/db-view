@@ -1,17 +1,11 @@
-// Modules to control application life and create native browser window
-require("./storage");
-const { app, BrowserWindow, globalShortcut, session } = require("electron");
-const path = require("path");
-const { MysqlConnectionManager } = require("./mysql-connection-manager");
-/**
- * @type BrowserWindow
- */
-let mainWindow;
+import path from "path";
+import "./connections/storage";
+import { app, BrowserWindow, globalShortcut } from "electron";
+import { ConnectionManager } from "./connections/connection-manager";
 
-/**
- * @type MysqlConnectionManager
- */
-let connectionManager;
+let mainWindow: BrowserWindow;
+
+let connectionManager: ConnectionManager;
 
 function createWindow() {
   // Create the browser window.
@@ -49,7 +43,7 @@ app.whenReady().then(() => {
   //   "/Users/ivan/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.27.8_0/"
   // );
 
-  connectionManager = new MysqlConnectionManager();
+  connectionManager = new ConnectionManager();
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the

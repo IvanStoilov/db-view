@@ -55,7 +55,7 @@ function SqlEditor(props: { connection: Connection }) {
     suppressCellFocus: true,
     loadingOverlayComponent: CustomLoadingOverlay,
     loadingOverlayComponentParams: {
-      onCancel: () => mysql.cancelExecution(connectionIdRef.current),
+      onCancel: () => dbClient.cancelExecution(connectionIdRef.current),
     },
     onGridReady: (e) => e.api.hideOverlay(),
   };
@@ -203,7 +203,7 @@ function SqlEditor(props: { connection: Connection }) {
       const table = columnData.table;
       const db = columnData.db;
 
-      const result = await mysql.execute(
+      const result = await dbClient.execute(
         props.connection.connectionId,
         `
       SELECT COLUMN_NAME as col

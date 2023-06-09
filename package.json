@@ -2,7 +2,7 @@
   "name": "db-view",
   "version": "0.1.0",
   "private": true,
-  "main": "main.js",
+  "main": "dist/electron/src/main.js",
   "dependencies": {
     "@monaco-editor/react": "^4.5.1",
     "@testing-library/jest-dom": "^5.16.5",
@@ -30,9 +30,10 @@
   },
   "scripts": {
     "start": "concurrently 'npm run start:browser' 'npm run start:electron'",
-    "start:electron": "electron .",
+    "start:electron": "npm run build:electron && electron .",
     "start:browser": "PORT=3006 BROWSER=none react-scripts start",
     "build": "react-scripts build",
+    "build:electron": "rimraf dist && tsc -p electron",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -58,6 +59,7 @@
     "@types/sqlstring": "^2.3.0",
     "concurrently": "^8.0.1",
     "electron": "^24.4.0",
-    "electron-devtools-installer": "^3.2.0"
+    "electron-devtools-installer": "^3.2.0",
+    "rimraf": "^5.0.1"
   }
 }

@@ -31,7 +31,13 @@ export function useConnections() {
       isLoading: false,
     };
 
-    mysql.connect(connection).then(() => {
+    const options = {
+      id: connection.connectionId,
+      type: "mysql" as const,
+      ...favorite,
+    };
+
+    dbClient.connect(options).then(() => {
       setItems(
         produce(items, (draft) => {
           draft[connection.connectionId] = connection;
@@ -45,7 +51,7 @@ export function useConnections() {
   }
 
   function close(connection: Connection) {
-    mysql.close(connection.connectionId).then(() => {
+    dbClient.close(connection.connectionId).then(() => {
       setItems(
         produce(items, (draft) => {
           delete draft[connection.connectionId];
@@ -74,7 +80,7 @@ export function useConnections() {
       })
     );
 
-    return mysql
+    return dbClient
       .execute(connectionId, query)
       .then((queryResult) => {
         console.debug("Result", queryResult);
@@ -105,7 +111,7 @@ export function useConnections() {
           })
         );
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error(error);
         setItems((i) =>
           produce(i, (draft) => {
@@ -140,7 +146,7 @@ export function useConnections() {
 
   function switchDatabase(db: string) {
     if (selectedId) {
-      return mysql.execute(selectedId, `USE ${db}`).then(() => {
+      return dbClient.execute(selectedId, `USE ${db}`).then(() => {
         reloadMeta(selectedId);
 
         setItems((i) =>
@@ -155,7 +161,7 @@ export function useConnections() {
   }
 
   function reloadMeta(connectionId: string) {
-    mysql.execute(connectionId, "SHOW TABLES;").then((result) => {
+    dbClient.execute(connectionId, "SHOW TABLES;").then((result) => {
       const col = result.columns[0].name;
       setItems((i) =>
         produce(i, (draft) => {
@@ -164,7 +170,7 @@ export function useConnections() {
       );
     });
 
-    mysql.execute(connectionId, "SHOW SCHEMAS;").then((result) => {
+    dbClient.execute(connectionId, "SHOW SCHEMAS;").then((result) => {
       const col = result.columns[0].name;
       setItems((i) =>
         produce(i, (draft) => {
