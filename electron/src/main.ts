@@ -1,7 +1,7 @@
 import path from "path";
 import "./connections/storage";
 import { app, BrowserWindow, globalShortcut } from "electron";
-import { ConnectionManager } from "./connections/connection-manager";
+import { ConnectionManager } from "./connections/ConnectionManager";
 
 let mainWindow: BrowserWindow;
 

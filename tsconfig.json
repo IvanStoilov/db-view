@@ -16,6 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "electron", "shared/connection-options.ts"],
+  "include": ["src", "shared"],
   "exclude": ["node_modules"]
 }

@@ -1,4 +1,4 @@
-import { ConnectionManager } from "./connections/connection-manager";
+import { ConnectionManager } from "./connections/ConnectionManager";
 import { contextBridge, ipcRenderer } from "electron";
 
 const dbClient = Object.getOwnPropertyNames(ConnectionManager.prototype)

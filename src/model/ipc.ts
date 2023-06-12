@@ -1,4 +1,4 @@
-import type { DbClient } from "../../shared/db-client";
+import type { DbClient } from "../../shared/DbClient";
 import { Favorite } from "./Favorite";
 
 type Storage = {

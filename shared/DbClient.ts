@@ -1,5 +1,5 @@
-import { ConnectionOptions } from "./connection-options";
-import { QueryResult } from "./query-result";
+import { ConnectionOptions } from "./ConnectionOptions";
+import { QueryResult } from "./QueryResult";
 
 export interface DbClient {
   connect(connection: ConnectionOptions): Promise<void>;

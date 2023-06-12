@@ -1,8 +1,8 @@
 import { ipcMain } from "electron";
-import { DbClient } from "../../../shared/db-client";
-import { DbConnection } from "./db-connection";
-import { MysqlDbConnection } from "./mysql-db-connection";
-import { ConnectionOptions } from "../../../shared/connection-options";
+import { DbClient } from "../../../shared/DbClient";
+import { DbConnection } from "./DbConnection";
+import { MysqlDbConnection } from "./MysqlDbConnection";
+import { ConnectionOptions } from "../../../shared/ConnectionOptions";
 
 export class ConnectionManager implements DbClient {
   private connections: Record<string, DbConnection> = {};
@@ -11,26 +11,10 @@ export class ConnectionManager implements DbClient {
     Object.getOwnPropertyNames(ConnectionManager.prototype)
       .filter((method) => method !== "constructor")
       .forEach((method) => {
-        console.log("db." + method);
         ipcMain.handle("db." + method, (ipc: unknown, ...args: any[]) =>
           (this as any)[method](...args)
         );
       });
-
-    // ipcMain.handle("db.connect", (ipc: unknown, options: ConnectionOptions) =>
-    //   this.connect.call(this, options)
-    // );
-    // ipcMain.handle("db.close", (ipc: unknown, connectionId: string) =>
-    //   this.close(connectionId)
-    // );
-    // ipcMain.handle(
-    //   "db.execute",
-    //   (ipc: unknown, connectionId: string, query: string) =>
-    //     this.execute(connectionId, query)
-    // );
-    // ipcMain.handle("db.cancelExecution", (ipc: unknown, connectionId: string) =>
-    //   this.cancelExecution(connectionId)
-    // );
   }
 
   async connect(options: ConnectionOptions) {

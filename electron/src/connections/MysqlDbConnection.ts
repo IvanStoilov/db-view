@@ -1,4 +1,4 @@
-import { DbConnection } from "./db-connection";
+import { DbConnection } from "./DbConnection";
 import {
   createConnection,
   Connection,
@@ -58,8 +58,8 @@ export class MysqlDbConnection implements DbConnection {
   }
 
   async fetchSchemas(): Promise<string> {
-    const schema = await this.getConnection().query("SHOW SCHEMAS");
-    return (schema[0] as any).map((schema: any) => Object.values(schema)[0]);
+    const schemas = await this.getConnection().query("SHOW SCHEMAS");
+    return (schemas[0] as any).map((schema: any) => Object.values(schema)[0]);
   }
 
   private getConnection(): Connection {
