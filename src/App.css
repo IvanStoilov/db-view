@@ -6,7 +6,7 @@
 
 .wrap,
 .favorites {
-  height: calc(100vh - 3.25rem); /* (100vh - header) */
+  height: calc(100vh - 0em); /* (100vh - header) */
   transition: all 0.2s ease-in-out;
   overflow: hidden;
 }
