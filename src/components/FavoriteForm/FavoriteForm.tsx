@@ -13,6 +13,7 @@ function FavoriteForm(props: {
       <Formik
         initialValues={props.favorite}
         onSubmit={(fav) => props.onUpdate(fav.id, fav)}
+        enableReinitialize={true}
       >
         <Form>
           <div className="field">
