@@ -9,7 +9,7 @@ export function useConnections() {
   const selected = selectedId ? items[selectedId] || null : null;
   const itemsArray = Object.values(items);
 
-  function connect(favorite: Favorite) {
+  async function connect(favorite: Favorite) {
     const connectionsWithSameNameCount = itemsArray.filter(
       (conn) => conn.favorite.name === favorite.name
     ).length;
@@ -32,7 +32,9 @@ export function useConnections() {
       ...favorite.options,
     };
 
-    dbClient.connect(options).then(() => {
+    try {
+      await dbClient.connect(options);
+
       setItems(
         produce(items, (draft) => {
           draft[connection.id] = connection;
@@ -40,9 +42,10 @@ export function useConnections() {
       );
 
       reloadMeta(connection.id);
-
       select(connection);
-    });
+    } catch (error: any) {
+      throw error;
+    }
   }
 
   function close(connection: Connection) {
@@ -68,52 +71,46 @@ export function useConnections() {
     updateLastQuery: boolean = true
   ) {
     console.debug(`Executing (${connectionId}): ${query}`);
-    setItems((i) =>
-      produce(i, (draft) => {
-        draft[connectionId].error = null;
-        draft[connectionId].isLoading = true;
-      })
-    );
+
+    updateConnection(connectionId, (conn) => {
+      conn.error = null;
+      conn.isLoading = true;
+    });
 
     return dbClient
       .execute(connectionId, query)
       .then((queryResult) => {
         console.debug("Result", queryResult);
-        setItems((i) =>
-          produce(i, (draft) => {
-            const currentQueryResult = draft[connectionId].queryResult;
-            if (queryResult.columns) {
-              // Select query
-              draft[connectionId].queryResult = {
-                columns: queryResult.columns,
-                data: queryResult.data,
-                query: updateLastQuery
-                  ? query
-                  : currentQueryResult?.query || query,
-                ddlStatus: null,
-              };
-            } else {
-              // DDL query
-              draft[connectionId].queryResult = {
-                columns: currentQueryResult?.columns || [],
-                data: currentQueryResult?.data || [],
-                query: draft[connectionId].queryResult?.query || "",
-                ddlStatus: queryResult.data as any,
-              };
-            }
-
-            draft[connectionId].isLoading = false;
-          })
-        );
+        updateConnection(connectionId, (conn) => {
+          const currentQueryResult = conn.queryResult;
+          if (queryResult.columns) {
+            // Select query
+            conn.queryResult = {
+              columns: queryResult.columns,
+              data: queryResult.data,
+              query: updateLastQuery
+                ? query
+                : currentQueryResult?.query || query,
+              ddlStatus: null,
+            };
+          } else {
+            // DDL query
+            conn.queryResult = {
+              columns: currentQueryResult?.columns || [],
+              data: currentQueryResult?.data || [],
+              query: conn.queryResult?.query || "",
+              ddlStatus: queryResult.data as any,
+            };
+          }
+          conn.isLoading = false;
+        });
       })
       .catch((error: any) => {
         console.error(error);
-        setItems((i) =>
-          produce(i, (draft) => {
-            draft[connectionId].error = error.message;
-            draft[connectionId].isLoading = false;
-          })
-        );
+        updateConnection(connectionId, (conn) => {
+          conn.error = error.message;
+          conn.isLoading = false;
+        });
       });
   }
 
@@ -123,32 +120,19 @@ export function useConnections() {
 
   function setQuery(query: string) {
     if (selectedId) {
-      setItems((i) =>
-        produce(i, (draft) => {
-          draft[selectedId].query = query;
-        })
-      );
+      updateConnection(selectedId, (conn) => (conn.query = query));
     }
   }
 
   function clearError(connectionId: string) {
-    setItems((i) =>
-      produce(i, (draft) => {
-        draft[connectionId].error = null;
-      })
-    );
+    updateConnection(connectionId, (conn) => (conn.error = null));
   }
 
   function switchDatabase(db: string) {
     if (selectedId) {
       return dbClient.execute(selectedId, `USE ${db}`).then(() => {
         reloadMeta(selectedId);
-
-        setItems((i) =>
-          produce(i, (draft) => {
-            draft[selectedId].currentDatabase = db;
-          })
-        );
+        updateConnection(selectedId, (conn) => (conn.currentDatabase = db));
       });
     }
 
@@ -158,21 +142,30 @@ export function useConnections() {
   function reloadMeta(connectionId: string) {
     dbClient.execute(connectionId, "SHOW TABLES;").then((result) => {
       const col = result.columns[0].name;
-      setItems((i) =>
-        produce(i, (draft) => {
-          draft[connectionId].tables = result.data.map((d: any) => d[col]);
-        })
+      updateConnection(
+        connectionId,
+        (conn) => (conn.tables = result.data.map((d: any) => d[col]))
       );
     });
 
     dbClient.execute(connectionId, "SHOW SCHEMAS;").then((result) => {
       const col = result.columns[0].name;
-      setItems((i) =>
-        produce(i, (draft) => {
-          draft[connectionId].databases = result.data.map((d: any) => d[col]);
-        })
+      updateConnection(
+        connectionId,
+        (conn) => (conn.databases = result.data.map((d: any) => d[col]))
       );
     });
+  }
+
+  function updateConnection(
+    connectionId: string,
+    fn: (conn: Connection) => void
+  ) {
+    setItems((item) =>
+      produce(item, (draft) => {
+        fn(draft[connectionId]);
+      })
+    );
   }
 
   return {

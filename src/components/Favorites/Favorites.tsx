@@ -56,7 +56,7 @@ function Favorites(props: {
           className={conn === props.selectedConnection ? "is-active" : ""}
           onClick={() => props.onSelectConnection(conn)}
         >
-          {conn.name}
+          {conn.name} ({conn.currentDatabase})
         </a>
       </li>
     );

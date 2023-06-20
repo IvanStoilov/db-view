@@ -1,4 +1,5 @@
-import React, { ReactNode, useImperativeHandle, useState } from "react";
+import React, { ReactNode } from "react";
+import { useAppContext } from "../../hooks/AppContext";
 
 type ModalDialogOptions = {
   content: ReactNode;
@@ -6,37 +7,28 @@ type ModalDialogOptions = {
   onCancel?: () => void;
 };
 
-type ModalDialogContext = ModalDialogOptions & {
-  isOpen: boolean;
-};
-
 export type ModalDialogHandle = {
   open: (options: ModalDialogOptions) => void;
 };
 
-const ModalDialog: React.ForwardRefRenderFunction<ModalDialogHandle, {}> = (
-  props,
-  forwardedRef
-) => {
-  const [context, setContext] = useState<ModalDialogContext | null>(null);
-
-  useImperativeHandle(forwardedRef, () => {
-    return {
-      open,
-    };
-  });
+export function ModalDialog() {
+  const { modal } = useAppContext();
 
   return (
-    <div className={"modal" + (context?.isOpen ? " is-active" : "")}>
+    <div className={"modal" + (modal.options ? " is-active" : "")}>
       <div className="modal-background"></div>
       <div className="modal-content">
         <div className="box">
-          <div className="mb-5">{context ? context.content : null}</div>
+          <div className="mb-5">
+            {modal.options ? modal.options.content : null}
+          </div>
           <div>
-            <button className="button is-primary" onClick={onOk}>
-              Ok
-            </button>
-            <button className="button ml-3" onClick={onCancel}>
+            {!modal.options?.hideOk && (
+              <button className="button mr-3 is-primary" onClick={onOk}>
+                Ok
+              </button>
+            )}
+            <button className="button" onClick={onCancel}>
               Close
             </button>
           </div>
@@ -47,34 +39,16 @@ const ModalDialog: React.ForwardRefRenderFunction<ModalDialogHandle, {}> = (
   );
 
   function onOk() {
-    close();
-    if (context?.onOk) {
-      context.onOk();
+    modal.hideModal();
+    if (modal.options?.onOk) {
+      modal.options.onOk();
     }
   }
 
   function onCancel() {
-    close();
-    if (context?.onCancel) {
-      context.onCancel();
+    modal.hideModal();
+    if (modal.options?.onCancel) {
+      modal.options.onCancel();
     }
   }
-
-  function open(options: ModalDialogOptions) {
-    setContext({
-      ...options,
-      isOpen: true,
-    });
-  }
-
-  function close() {
-    if (context) {
-      setContext({
-        ...context,
-        isOpen: false,
-      });
-    }
-  }
-};
-
-export default React.forwardRef(ModalDialog);
+}

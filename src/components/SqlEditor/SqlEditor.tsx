@@ -12,7 +12,6 @@ import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";
 import { GridCustomHeader } from "./GridCustomHeader";
 import SqlString from "sqlstring";
-import ModalDialog, { ModalDialogHandle } from "../common/ModalDialog";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -22,11 +21,10 @@ window.Buffer = {
 } as any;
 
 function SqlEditor(props: { connection: Connection }) {
-  const { connections } = useAppContext();
+  const { connections, modal } = useAppContext();
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.id);
   const grid = useRef<AgGridReact | null>(null);
-  const confirmChangeDialogRef = useRef<ModalDialogHandle | null>(null);
 
   const agGridProps: AgGridReactProps = {
     rowData: props.connection.queryResult?.data,
@@ -112,7 +110,6 @@ function SqlEditor(props: { connection: Connection }) {
           {props.connection.error}
         </div>
       )}
-      <ModalDialog ref={confirmChangeDialogRef}></ModalDialog>
     </div>
   );
 
@@ -231,7 +228,7 @@ function SqlEditor(props: { connection: Connection }) {
             ...primaryKeyValues,
           ]);
 
-          confirmChangeDialogRef.current?.open({
+          modal.showModal({
             content: (
               <span>
                 <p className="mb-3">The following query will be executed:</p>
@@ -247,7 +244,7 @@ function SqlEditor(props: { connection: Connection }) {
             },
           });
         } else {
-          confirmChangeDialogRef.current?.open({
+          modal.showModal({
             content:
               "This field cannot be modified because the primary key is not present in the result set.",
           });
