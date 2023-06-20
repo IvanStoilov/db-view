@@ -6,6 +6,7 @@ import FavoriteForm from "./components/FavoriteForm/FavoriteForm";
 import { ConnectionView } from "./components/ConnectionView/ConnectionView";
 import { useAppContext } from "./hooks/AppContext";
 import { ModalDialog } from "./components/common/ModalDialog";
+import { Favorite } from "./model/Favorite";
 
 function App() {
   const { favorites, connections, modal } = useAppContext();
@@ -19,16 +20,10 @@ function App() {
             connections={connections.items}
             selectedConnection={connections.selected}
             onSelect={favorites.select}
-            onConnect={async fav => {
-              try {
-                await connections.connect(fav);
-              } catch (error: any) {
-                modal.showModal({ content: error.message, hideOk: true })
-              }
-
-            }}
+            onConnect={onConnect}
             onSelectConnection={connections.select}
             onAddFavorite={favorites.add}
+            onConnectionClose={connections.close}
           />
         </div>
         <div className="content-right">
@@ -50,6 +45,14 @@ function App() {
       <ModalDialog />
     </div>
   );
+
+  async function onConnect(fav: Favorite) {
+    try {
+      await connections.connect(fav);
+    } catch (error: any) {
+      modal.showModal({ content: error.message, hideOk: true });
+    }
+  }
 }
 
 export default App;

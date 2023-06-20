@@ -11,3 +11,22 @@
 .favorite-item:hover .favorite-item__edit {
   display: block;
 }
+
+.menu-list a.favorite__connection__item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.favorite__connection__close {
+  cursor: "pointer";
+  transition: opacity ease-in 0.2s;
+  opacity: 0;
+}
+
+.favorite__connection__close:hover {
+  transform: scale(1.2);
+}
+
+.favorite__connection__item:hover .favorite__connection__close {
+  opacity: 1;
+}

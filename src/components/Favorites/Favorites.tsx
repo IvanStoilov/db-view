@@ -11,6 +11,7 @@ function Favorites(props: {
   onSelect: (favorite: Favorite) => void;
   onConnect: (favorite: Favorite) => void;
   onSelectConnection: (connection: Connection) => void;
+  onConnectionClose: (connection: Connection) => void;
 }) {
   return (
     <div>
@@ -53,10 +54,22 @@ function Favorites(props: {
     return (
       <li key={conn.id}>
         <a
-          className={conn === props.selectedConnection ? "is-active" : ""}
+          className={
+            "favorite__connection__item" +
+            (conn === props.selectedConnection ? " is-active" : "")
+          }
           onClick={() => props.onSelectConnection(conn)}
         >
           {conn.name} ({conn.currentDatabase})
+          <span
+            className="favorite__connection__close"
+            onClick={(event) => {
+              event.stopPropagation();
+              props.onConnectionClose(conn);
+            }}
+          >
+            X
+          </span>
         </a>
       </li>
     );
