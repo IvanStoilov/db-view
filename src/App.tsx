@@ -7,6 +7,7 @@ import { ConnectionView } from "./components/ConnectionView/ConnectionView";
 import { useAppContext } from "./hooks/AppContext";
 import { ModalDialog } from "./components/common/ModalDialog";
 import { Favorite } from "./model/Favorite";
+import { Connection } from "./model/Connection";
 
 function App() {
   const { favorites, connections, modal } = useAppContext();
@@ -21,7 +22,7 @@ function App() {
             selectedConnection={connections.selected}
             onSelect={favorites.select}
             onConnect={onConnect}
-            onSelectConnection={connections.select}
+            onSelectConnection={onSelectConnection}
             onAddFavorite={favorites.add}
             onConnectionClose={connections.close}
           />
@@ -37,7 +38,7 @@ function App() {
               />
             </div>
           )}
-          {connections.selected && (
+          {connections.selected && !favorites.selected && (
             <ConnectionView connection={connections.selected} />
           )}
         </div>
@@ -52,6 +53,11 @@ function App() {
     } catch (error: any) {
       modal.showModal({ content: error.message, hideOk: true });
     }
+  }
+
+  function onSelectConnection(conn: Connection) {
+    connections.select(conn);
+    favorites.clearSelection();
   }
 }
 
