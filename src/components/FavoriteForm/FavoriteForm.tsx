@@ -68,7 +68,7 @@ function FavoriteForm(props: {
             <div className="control">
               <Field
                 id="formIdpassword"
-                type="text"
+                type="password"
                 name="options.password"
                 className="input"
               />
