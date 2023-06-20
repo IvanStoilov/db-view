@@ -13,51 +13,46 @@ export function useConnections() {
     const connectionsWithSameNameCount = itemsArray.filter(
       (conn) => conn.favorite.name === favorite.name
     ).length;
-    const suffix =
-      connectionsWithSameNameCount > 0
-        ? ` (${connectionsWithSameNameCount})`
-        : "";
-
-    const connection = {
+    const connection: Connection = {
       favorite,
-      name: favorite.name + suffix,
-      connectionId: (Math.random() + "").substring(2),
-      query: "select sleep(2)",
+      name: `#${connectionsWithSameNameCount + 1}`,
+      id: (Math.random() + "").substring(2),
+      query: `select sleep(${Math.ceil(Math.random() * 2000)})`,
       queryResult: null,
       error: null,
       tables: [],
       databases: [],
-      currentDatabase: favorite.database,
+      currentDatabase: favorite.options.database,
       isLoading: false,
     };
 
     const options = {
-      id: connection.connectionId,
       type: "mysql" as const,
-      ...favorite,
+      id: connection.id,
+      ...favorite.options,
     };
 
     dbClient.connect(options).then(() => {
       setItems(
         produce(items, (draft) => {
-          draft[connection.connectionId] = connection;
+          draft[connection.id] = connection;
         })
       );
 
-      reloadMeta(connection.connectionId);
+      reloadMeta(connection.id);
 
       select(connection);
     });
   }
 
   function close(connection: Connection) {
-    dbClient.close(connection.connectionId).then(() => {
+    dbClient.close(connection.id).then(() => {
       setItems(
         produce(items, (draft) => {
-          delete draft[connection.connectionId];
+          delete draft[connection.id];
         })
       );
-      if (selectedId === connection.connectionId) {
+      if (selectedId === connection.id) {
         clearSelection();
       }
     });
@@ -123,7 +118,7 @@ export function useConnections() {
   }
 
   function select(connection: Connection | null) {
-    setSelectedId(() => (connection === null ? null : connection.connectionId));
+    setSelectedId(() => (connection === null ? null : connection.id));
   }
 
   function setQuery(query: string) {

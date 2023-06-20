@@ -31,7 +31,7 @@ function TableList(props: { connection: Connection }) {
 
   function handleTableClick(tableName: string) {
     connections.execute(
-      props.connection.connectionId,
+      props.connection.id,
       `SELECT * FROM \`${tableName}\` LIMIT 100`
     );
   }

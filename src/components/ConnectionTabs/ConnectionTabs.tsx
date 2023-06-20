@@ -13,7 +13,7 @@ export function ConnectionTabs(props: {
       <div className="navbar-start">
         {props.connections.map((connection, ind) => (
           <a
-            key={connection.connectionId}
+            key={connection.id}
             className={
               "navbar-item" +
               (props.activeConnection === connection ? " is-active" : "")

@@ -6,6 +6,13 @@ type BasicFields = {
 
 export type ConnectionOptions = BasicFields &
   (
-    | (mysql.ConnectionOptions & { type: "mysql" })
+    | {
+        type: "mysql";
+        database: string;
+        host: string;
+        password: string;
+        user: string;
+        timezone: string;
+      }
     | (never & { type: "postgres" })
   );

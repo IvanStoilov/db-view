@@ -1,9 +1,11 @@
 export type Favorite = {
-  favoriteId: string;
+  id: string;
   name: string;
-  user: string;
-  password: string;
-  host: string;
-  database: string;
-  timezone: string;
+  options: {
+    user: string;
+    password: string;
+    host: string;
+    database: string;
+    timezone: string;
+  };
 };

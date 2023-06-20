@@ -8,6 +8,7 @@ ipcMain.handle("storageGetAll", storageGetAll);
 const store = new Store<Record<string, string>>({
   name: "db-view",
   watch: true,
+  // TODO: set this up
   encryptionKey: "0?hztDVzmf61k(RD#@nY8[f_,j?_p",
 });
 

@@ -1,12 +1,16 @@
 import React from "react";
 import { Favorite } from "../../model/Favorite";
 import "./Favorites.css";
+import { Connection } from "../../model/Connection";
 
 function Favorites(props: {
   favorites: Favorite[];
+  connections: Connection[];
+  selectedConnection: Connection | null;
   onAddFavorite: () => void;
   onSelect: (favorite: Favorite) => void;
   onConnect: (favorite: Favorite) => void;
+  onSelectConnection: (connection: Connection) => void;
 }) {
   return (
     <div>
@@ -26,15 +30,33 @@ function Favorites(props: {
 
   function getFav(fav: Favorite) {
     return (
-      <li key={fav.favoriteId}>
+      <li key={fav.id}>
         <a onDoubleClick={() => props.onConnect(fav)} className="favorite-item">
           <span style={{ fontWeight: "bold" }}>{fav.name}</span>
           <span
             className="favorite-item__edit"
             onClick={() => props.onSelect(fav)}
           >
-            <i className="fas fa-pen"></i>
+            <i className="fas fa-pen"></i>edit
           </span>
+        </a>
+        <ul>
+          {props.connections
+            .filter((conn) => conn.favorite.id === fav.id)
+            .map(getConnection)}
+        </ul>
+      </li>
+    );
+  }
+
+  function getConnection(conn: Connection) {
+    return (
+      <li key={conn.id}>
+        <a
+          className={conn === props.selectedConnection ? "is-active" : ""}
+          onClick={() => props.onSelectConnection(conn)}
+        >
+          {conn.name}
         </a>
       </li>
     );

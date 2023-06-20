@@ -12,7 +12,7 @@ function FavoriteForm(props: {
     <div>
       <Formik
         initialValues={props.favorite}
-        onSubmit={(fav) => props.onUpdate(fav.favoriteId, fav)}
+        onSubmit={(fav) => props.onUpdate(fav.id, fav)}
       >
         <Form>
           <div className="field">
@@ -38,7 +38,7 @@ function FavoriteForm(props: {
               <Field
                 id="formIdHost"
                 type="text"
-                name="host"
+                name="options.host"
                 className="input"
               />
             </div>
@@ -53,7 +53,7 @@ function FavoriteForm(props: {
               <Field
                 id="formIduser"
                 type="text"
-                name="user"
+                name="options.user"
                 className="input"
               />
             </div>
@@ -68,7 +68,7 @@ function FavoriteForm(props: {
               <Field
                 id="formIdpassword"
                 type="text"
-                name="password"
+                name="options.password"
                 className="input"
               />
             </div>
@@ -83,7 +83,7 @@ function FavoriteForm(props: {
               <Field
                 id="formIddatabase"
                 type="text"
-                name="database"
+                name="options.database"
                 className="input"
               />
             </div>

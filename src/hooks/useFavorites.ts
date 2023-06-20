@@ -11,24 +11,26 @@ export function useFavorites() {
 
   function add() {
     const newFavorite: Favorite = {
-      favoriteId: (Math.random() + "").substring(2),
+      id: (Math.random() + "").substring(2),
       name: "New favorite",
-      database: "",
-      host: "",
-      password: "",
-      user: "",
-      timezone: "UTC",
+      options: {
+        database: "",
+        host: "",
+        password: "",
+        user: "",
+        timezone: "UTC",
+      },
     };
 
-    storage.set(newFavorite.favoriteId, newFavorite);
+    storage.set(newFavorite.id, newFavorite);
 
     setItems([...items, newFavorite]);
   }
 
   function remove() {
     if (selected) {
-      storage.delete(selected.favoriteId).then(() => {
-        setItems(items.filter((f) => f.favoriteId !== selected.favoriteId));
+      storage.delete(selected.id).then(() => {
+        setItems(items.filter((f) => f.id !== selected.id));
         clearSelection();
       });
     }
@@ -42,7 +44,7 @@ export function useFavorites() {
     storage.set(id, updated).then(() => {
       setItems(
         items.map((f) => {
-          return f.favoriteId === id ? updated : f;
+          return f.id === id ? updated : f;
         })
       );
     });

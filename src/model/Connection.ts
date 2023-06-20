@@ -2,14 +2,14 @@ import { Favorite } from "./Favorite";
 import { QueryResult } from "./QueryResult";
 
 export type Connection = {
-  favorite: Favorite;
+  id: string;
   name: string;
-  connectionId: string;
+  favorite: Favorite;
+  tables: string[];
+  databases: string[];
+  currentDatabase: string;
   query: string;
   queryResult: QueryResult | null;
   error: string | null;
   isLoading: boolean;
-  tables: string[];
-  databases: string[];
-  currentDatabase: string;
 };

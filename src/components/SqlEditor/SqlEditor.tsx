@@ -24,7 +24,7 @@ window.Buffer = {
 function SqlEditor(props: { connection: Connection }) {
   const { connections } = useAppContext();
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
-  const connectionIdRef = useRef(props.connection.connectionId);
+  const connectionIdRef = useRef(props.connection.id);
   const grid = useRef<AgGridReact | null>(null);
   const confirmChangeDialogRef = useRef<ModalDialogHandle | null>(null);
 
@@ -61,7 +61,7 @@ function SqlEditor(props: { connection: Connection }) {
   };
 
   useEffect(() => {
-    connectionIdRef.current = props.connection.connectionId;
+    connectionIdRef.current = props.connection.id;
   }, [props.connection]);
 
   return (
@@ -106,7 +106,7 @@ function SqlEditor(props: { connection: Connection }) {
           <button
             className="delete"
             onClick={() =>
-              connections.clearError(props.connection.connectionId)
+              connections.clearError(props.connection.id)
             }
           ></button>
           {props.connection.error}
@@ -204,7 +204,7 @@ function SqlEditor(props: { connection: Connection }) {
       const db = columnData.db;
 
       const result = await dbClient.execute(
-        props.connection.connectionId,
+        props.connection.id,
         `
       SELECT COLUMN_NAME as col
       FROM information_schema.COLUMNS
@@ -239,7 +239,7 @@ function SqlEditor(props: { connection: Connection }) {
               </span>
             ),
             onOk: async () => {
-              await connections.execute(props.connection.connectionId, newSql);
+              await connections.execute(props.connection.id, newSql);
               event.node.setData({
                 ...event.node.data,
                 [field]: event.newValue,
