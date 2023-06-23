@@ -1,6 +1,8 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import React from "react";
+import React, { useEffect } from "react";
 import { Favorite } from "../../model/Favorite";
+import { Box, Button, Group, Select, TextInput } from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { produce } from "immer";
 
 function FavoriteForm(props: {
   favorite: Favorite;
@@ -8,113 +10,87 @@ function FavoriteForm(props: {
   onClose: () => void;
   onDelete: () => void;
 }) {
+  const form = useForm({
+    initialValues: getValues(),
+    validate: {
+      name: (value) => (Boolean(value) ? null : "Empty"),
+      user: (value) => (Boolean(value) ? null : "Empty"),
+      password: (value) => (Boolean(value) ? null : "Empty"),
+      host: (value) => (Boolean(value) ? null : "Empty"),
+      database: (value) => (Boolean(value) ? null : "Empty"),
+    },
+  });
+
+  useEffect(() => {
+    form.setValues(getValues());
+  }, [props.favorite]);
+
   return (
-    <div>
-      <Formik
-        initialValues={props.favorite}
-        onSubmit={(fav) => props.onUpdate(fav.id, fav)}
-        enableReinitialize={true}
-      >
-        <Form>
-          <div className="field">
-            <label htmlFor="formIdName" className="label">
-              Name
-            </label>
-            <div className="control">
-              <Field
-                id="formIdName"
-                type="text"
-                name="name"
-                className="input"
-              />
-            </div>
-            <ErrorMessage name="name" component="div" />
-          </div>
-
-          <div className="field">
-            <label htmlFor="formIdHost" className="label">
-              Host
-            </label>
-            <div className="control">
-              <Field
-                id="formIdHost"
-                type="text"
-                name="options.host"
-                className="input"
-              />
-            </div>
-            <ErrorMessage name="host" component="div" />
-          </div>
-
-          <div className="field">
-            <label htmlFor="formIduser" className="label">
-              user
-            </label>
-            <div className="control">
-              <Field
-                id="formIduser"
-                type="text"
-                name="options.user"
-                className="input"
-              />
-            </div>
-            <ErrorMessage name="user" component="div" />
-          </div>
-
-          <div className="field">
-            <label htmlFor="formIdpassword" className="label">
-              password
-            </label>
-            <div className="control">
-              <Field
-                id="formIdpassword"
-                type="password"
-                name="options.password"
-                className="input"
-              />
-            </div>
-            <ErrorMessage name="password" component="div" />
-          </div>
-
-          <div className="field">
-            <label htmlFor="formIddatabase" className="label">
-              database
-            </label>
-            <div className="control">
-              <Field
-                id="formIddatabase"
-                type="text"
-                name="options.database"
-                className="input"
-              />
-            </div>
-            <ErrorMessage name="database" component="div" />
-          </div>
-
-          <div className="columns">
-            <div className="column">
-              <button className="button is-primary" type="submit">
-                Submit
-              </button>
-            </div>
-            <div className="column">
-              <button className="button" onClick={() => props.onClose()}>
-                Close
-              </button>
-            </div>
-            <div className="column">
-              <button
-                className="button is-danger"
-                onClick={() => props.onDelete()}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </Form>
-      </Formik>
-    </div>
+    <Box maw={300} mx="auto">
+      <form onSubmit={form.onSubmit(onSubmit)}>
+        <TextInput withAsterisk label="Email" {...form.getInputProps("name")} />
+        <TextInput
+          mt="md"
+          withAsterisk
+          label="User"
+          {...form.getInputProps("user")}
+        />
+        <TextInput
+          mt="md"
+          withAsterisk
+          type="password"
+          label="Password"
+          {...form.getInputProps("password")}
+        />
+        <TextInput
+          mt="md"
+          withAsterisk
+          label="Database"
+          {...form.getInputProps("database")}
+        />
+        <Select
+          mt="md"
+          label="Timezone"
+          data={["UTC", "Europe/Madrid", "Europe/Sofia", "America/New_York"]}
+          {...form.getInputProps("timezone")}
+        ></Select>
+        <Group position="right" mt="md">
+          <Button type="submit">Submit</Button>
+          <Button variant="default" onClick={() => props.onClose()}>
+            Close
+          </Button>
+          <Button color="red" onClick={() => props.onDelete()}>
+            Delete
+          </Button>
+        </Group>
+      </form>
+    </Box>
   );
+
+  function getValues() {
+    return {
+      name: props.favorite.name,
+      user: props.favorite.options.user,
+      password: props.favorite.options.password,
+      host: props.favorite.options.host,
+      database: props.favorite.options.database,
+      timezone: props.favorite.options.timezone,
+    };
+  }
+
+  function onSubmit(values: typeof form.values) {
+    props.onUpdate(
+      props.favorite.id,
+      produce(props.favorite, (draft) => {
+        draft.name = values.name;
+        draft.options.user = values.user;
+        draft.options.password = values.password;
+        draft.options.host = values.host;
+        draft.options.database = values.database;
+        draft.options.timezone = values.timezone;
+      })
+    );
+  }
 }
 
 export default FavoriteForm;
