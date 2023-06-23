@@ -13,6 +13,9 @@ import { StatusBar } from "./StatusBar";
 import { GridCustomHeader } from "./GridCustomHeader";
 import SqlString from "sqlstring";
 import { notifications } from "@mantine/notifications";
+import { modals } from "@mantine/modals";
+import { Alert, Box, Paper, Text } from "@mantine/core";
+import { IconAlertCircle } from "@tabler/icons-react";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -270,15 +273,20 @@ function SqlEditor(props: { connection: Connection }) {
             ...primaryKeyValues,
           ]);
 
-          modal.showModal({
-            content: (
-              <span>
-                <p className="mb-3">The following query will be executed:</p>
-                <pre>{newSql}</pre>
-              </span>
+          modals.openConfirmModal({
+            title: "Confirm update",
+            children: (
+              <Alert
+                icon={<IconAlertCircle size="1rem" />}
+                title="To execute"
+                color="red"
+              >
+                <pre style={{ whiteSpace: "break-spaces", padding: 0 }}>{newSql}</pre>
+              </Alert>
             ),
-            onOk: async () => {
-              await executeQuery(newSql);
+            labels: { confirm: "Confirm", cancel: "Cancel" },
+            onConfirm: async () => {
+              await executeQuery(newSql, false);
               event.node.setData({
                 ...event.node.data,
                 [field]: event.newValue,
@@ -286,9 +294,18 @@ function SqlEditor(props: { connection: Connection }) {
             },
           });
         } else {
-          modal.showModal({
-            content:
-              "This field cannot be modified because the primary key is not present in the result set.",
+          modals.openConfirmModal({
+            title: "Update impossible",
+            children: (
+              <Text size="md">
+                This field cannot be modified because the primary key is not
+                present in the result set.
+              </Text>
+            ),
+            labels: { confirm: "OK", cancel: "Close" },
+            confirmProps: {
+              hidden: true,
+            },
           });
         }
       }
