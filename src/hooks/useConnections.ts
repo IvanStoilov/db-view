@@ -28,7 +28,8 @@ export function useConnections() {
 
     const options = {
       type: "mysql" as const,
-      id: favorite.id,
+      id: connection.id,
+      favoriteId: favorite.id,
       ...favorite.options,
     };
 

@@ -2,6 +2,7 @@ import * as mysql from "mysql2";
 
 type BasicFields = {
   id: string;
+  favoriteId: string;
 };
 
 export type ConnectionOptions = BasicFields &

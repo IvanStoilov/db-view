@@ -19,7 +19,7 @@ export class ConnectionManager implements DbClient {
   }
 
   async connect(options: ConnectionOptions) {
-    const storedFavorite: any = storageGet(options.id);
+    const storedFavorite: any = storageGet(options.favoriteId);
 
     if (!storedFavorite) {
       throw new Error("Favorite not found");

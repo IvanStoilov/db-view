@@ -50,7 +50,7 @@ function sanitize(obj: unknown): unknown {
     typeof obj.options === "object" &&
     "password" in obj.options
   ) {
-    // obj.options.password = "******";
+    obj.options.password = "******";
     return obj;
   }
 
