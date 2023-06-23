@@ -1,7 +1,6 @@
-import { ConnectionManager } from "./connections/ConnectionManager";
 import { contextBridge, ipcRenderer } from "electron";
 
-const dbClient = Object.getOwnPropertyNames(ConnectionManager.prototype)
+const dbClient = ["connect", "close", "execute", "cancelExecution"]
   .filter((method) => method !== "constructor")
   .reduce(
     (obj, method) => ({

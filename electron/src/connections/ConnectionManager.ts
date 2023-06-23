@@ -3,6 +3,7 @@ import { DbClient } from "../../../shared/DbClient";
 import { DbConnection } from "./DbConnection";
 import { MysqlDbConnection } from "./MysqlDbConnection";
 import { ConnectionOptions } from "../../../shared/ConnectionOptions";
+import { storageGet, storageGetAll } from "./storage";
 
 export class ConnectionManager implements DbClient {
   private connections: Record<string, DbConnection> = {};
@@ -18,8 +19,19 @@ export class ConnectionManager implements DbClient {
   }
 
   async connect(options: ConnectionOptions) {
-    console.debug("Connecting", { options });
-    const conn = new MysqlDbConnection(options);
+    const storedFavorite: any = storageGet(options.id);
+
+    if (!storedFavorite) {
+      throw new Error("Favorite not found");
+    }
+
+    const optionsWithPassword = {
+      ...options,
+      password: storedFavorite.options.password,
+    };
+
+    console.debug("Connecting", { options: optionsWithPassword });
+    const conn = new MysqlDbConnection(optionsWithPassword);
     await conn.connect();
 
     console.debug("Connected", { options });

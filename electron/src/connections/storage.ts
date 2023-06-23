@@ -17,16 +17,42 @@ function storageSet(ipc: unknown, key: string, value: any) {
   store.set(key, buffer.toString("latin1"));
 }
 
+export function storageGet(key: string) {
+  const stored = store.get(key);
+
+  if (stored) {
+    return JSON.parse(safeStorage.decryptString(Buffer.from(stored, "latin1")));
+  }
+
+  return null;
+}
+
 function storageDelete(ipc: unknown, key: string) {
   store.delete(key);
 }
 
-function storageGetAll(ipc: unknown): unknown[] {
+export function storageGetAll(ipc: unknown): unknown[] {
   const entries = Object.entries(store.store);
   return entries.reduce((values, [key, buffer]) => {
     return [
       ...values,
-      JSON.parse(safeStorage.decryptString(Buffer.from(buffer, "latin1"))),
+      sanitize(
+        JSON.parse(safeStorage.decryptString(Buffer.from(buffer, "latin1")))
+      ),
     ];
   }, [] as unknown[]);
+}
+
+function sanitize(obj: unknown): unknown {
+  if (
+    typeof obj === "object" &&
+    "options" in obj &&
+    typeof obj.options === "object" &&
+    "password" in obj.options
+  ) {
+    // obj.options.password = "******";
+    return obj;
+  }
+
+  return obj;
 }
