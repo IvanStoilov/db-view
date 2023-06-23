@@ -12,6 +12,7 @@ import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";
 import { GridCustomHeader } from "./GridCustomHeader";
 import SqlString from "sqlstring";
+import { notifications } from "@mantine/notifications";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -99,17 +100,6 @@ function SqlEditor(props: { connection: Connection }) {
       <div style={{ height: "24px" }}>
         <StatusBar result={props.connection.queryResult} />
       </div>
-      {props.connection.error && (
-        <div className="sql-editor__error notification is-danger my-3">
-          <button
-            className="delete"
-            onClick={() =>
-              connections.clearError(props.connection.id)
-            }
-          ></button>
-          {props.connection.error}
-        </div>
-      )}
     </div>
   );
 
@@ -139,14 +129,66 @@ function SqlEditor(props: { connection: Connection }) {
 
       sql = sql.substring(start, end).trim();
 
-      grid.current?.api.showLoadingOverlay();
-      connections.execute(connectionIdRef.current, sql).finally(() => {
-        grid.current?.api.hideOverlay();
-      });
+      executeQuery(sql);
 
       event.preventDefault();
       event.stopPropagation();
     }
+  }
+
+  async function executeQuery(query: string, updateLast = true) {
+    const executionId = Math.random() + "";
+    notifications.clean();
+    notifications.show({
+      id: executionId,
+      title: "Query execution",
+      message: "Executing ...",
+      withCloseButton: true,
+      autoClose: false,
+      loading: true,
+      onClose: (props) => {
+        notifications.update({
+          id: executionId,
+          message: "Cancelling ...",
+        });
+        dbClient
+          .cancelExecution(connectionIdRef.current)
+          .then(() => {
+            notifications.update({
+              id: executionId,
+              message: "Cancelled",
+              autoClose: 500,
+            });
+          })
+          .catch((error) => {
+            notifications.show({
+              message: error.message,
+              color: "red",
+              autoClose: false,
+            });
+          });
+      },
+    });
+
+    await dbClient.cancelExecution(connectionIdRef.current);
+
+    await connections
+      .execute(connectionIdRef.current, query, updateLast)
+      .then(() => {
+        notifications.update({
+          id: executionId,
+          message: "Done",
+          autoClose: 500,
+        });
+      })
+      .catch((error) => {
+        notifications.update({
+          id: executionId,
+          message: error.message,
+          color: "red",
+          autoClose: false,
+        });
+      });
   }
 
   function handleSortChange(event: SortChangedEvent<any>) {
@@ -168,7 +210,7 @@ function SqlEditor(props: { connection: Connection }) {
         sql = `SELECT * FROM (${sql}) dbviewtemptable ORDER BY ${order}`;
       }
       sql = `${sql} ${limitAddOn}`;
-      connections.execute(connectionIdRef.current, sql, false);
+      executeQuery(sql, false);
     }
   }
 
@@ -183,7 +225,7 @@ function SqlEditor(props: { connection: Connection }) {
     if (colType === "json") {
       return JSON.stringify(value);
     }
-    
+
     return value;
   }
 
@@ -236,7 +278,7 @@ function SqlEditor(props: { connection: Connection }) {
               </span>
             ),
             onOk: async () => {
-              await connections.execute(props.connection.id, newSql);
+              await executeQuery(newSql);
               event.node.setData({
                 ...event.node.data,
                 [field]: event.newValue,

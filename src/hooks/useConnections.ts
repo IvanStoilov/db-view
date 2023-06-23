@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Connection } from "../model/Connection";
 import { Favorite } from "../model/Favorite";
 import { produce } from "immer";
+import { notifications } from "@mantine/notifications";
 
 export function useConnections() {
   const [items, setItems] = useState<Record<string, Connection>>({});
@@ -45,6 +46,10 @@ export function useConnections() {
       reloadMeta(connection.id);
       select(connection);
     } catch (error: any) {
+      notifications.show({
+        message: error.message,
+        color: "red",
+      });
       throw error;
     }
   }
@@ -112,6 +117,7 @@ export function useConnections() {
           conn.error = error.message;
           conn.isLoading = false;
         });
+        return Promise.reject(error);
       });
   }
 

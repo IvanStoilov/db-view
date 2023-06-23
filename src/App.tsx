@@ -8,6 +8,7 @@ import { useAppContext } from "./hooks/AppContext";
 import { ModalDialog } from "./components/common/ModalDialog";
 import { Favorite } from "./model/Favorite";
 import { Connection } from "./model/Connection";
+import { Notifications } from "@mantine/notifications";
 
 function App() {
   const { favorites, connections, modal } = useAppContext();
@@ -21,7 +22,7 @@ function App() {
             connections={connections.items}
             selectedConnection={connections.selected}
             onSelect={favorites.select}
-            onConnect={onConnect}
+            onConnect={connections.connect}
             onSelectConnection={onSelectConnection}
             onAddFavorite={favorites.add}
             onConnectionClose={connections.close}
@@ -44,16 +45,9 @@ function App() {
         </div>
       </div>
       <ModalDialog />
+      <Notifications position="bottom-right" />
     </div>
   );
-
-  async function onConnect(fav: Favorite) {
-    try {
-      await connections.connect(fav);
-    } catch (error: any) {
-      modal.showModal({ content: error.message, hideOk: true });
-    }
-  }
 
   function onSelectConnection(conn: Connection) {
     connections.select(conn);
