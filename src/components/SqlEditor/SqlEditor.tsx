@@ -1,6 +1,6 @@
 import { AgGridReact, AgGridReactProps } from "ag-grid-react";
 import { SortChangedEvent, CellEditingStoppedEvent } from "ag-grid-community";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
@@ -14,7 +14,7 @@ import { GridCustomHeader } from "./GridCustomHeader";
 import SqlString from "sqlstring";
 import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
-import { Alert, Box, Paper, Text } from "@mantine/core";
+import { Alert, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 
 const EDITOR_HEIGHT_INITIAL = 100;
@@ -25,12 +25,11 @@ window.Buffer = {
 } as any;
 
 function SqlEditor(props: { connection: Connection }) {
-  const { connections, modal } = useAppContext();
+  const { connections } = useAppContext();
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const connectionIdRef = useRef(props.connection.id);
   const grid = useRef<AgGridReact | null>(null);
-
-  const agGridProps: AgGridReactProps = {
+  const agGridProps: AgGridReactProps = useMemo(() => ({
     rowData: props.connection.queryResult?.data,
     columnDefs: props.connection.queryResult?.columns.map((col) => ({
       field: col.name,
@@ -60,7 +59,7 @@ function SqlEditor(props: { connection: Connection }) {
       onCancel: () => dbClient.cancelExecution(connectionIdRef.current),
     },
     onGridReady: (e) => e.api.hideOverlay(),
-  };
+  }), [props.connection.queryResult])
 
   useEffect(() => {
     connectionIdRef.current = props.connection.id;
