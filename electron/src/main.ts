@@ -1,6 +1,6 @@
 import path from "path";
 import "./connections/storage";
-import { app, BrowserWindow, globalShortcut } from "electron";
+import { app, BrowserWindow, globalShortcut, session } from "electron";
 import { ConnectionManager } from "./connections/ConnectionManager";
 
 let mainWindow: BrowserWindow;
@@ -38,10 +38,11 @@ function createWindow() {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
-  // await session.defaultSession.loadExtension(
-  //   "/Users/ivan/Library/Application Support/Google/Chrome/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.27.8_0/"
-  // );
+app.whenReady().then(async () => {
+  // How to install dev tools: https://github.com/facebook/react/issues/25843#issuecomment-1406766561
+  await session.defaultSession.loadExtension(
+    "/Users/ivan/Downloads/ReactDevTools"
+  );
 
   connectionManager = new ConnectionManager();
 

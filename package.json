@@ -37,7 +37,7 @@
   },
   "scripts": {
     "start": "concurrently 'npm run start:browser' 'npm run start:electron'",
-    "start:electron": "npm run build:electron && electron .",
+    "start:electron": "npm run build:electron && electron --trace-warnings .",
     "start:browser": "PORT=3006 BROWSER=none react-scripts start",
     "build": "react-scripts build",
     "build:electron": "rimraf dist && tsc -p electron",
@@ -65,7 +65,7 @@
   "devDependencies": {
     "@types/sqlstring": "^2.3.0",
     "concurrently": "^8.0.1",
-    "electron": "^24.4.0",
+    "electron": "^25.2.0",
     "electron-devtools-installer": "^3.2.0",
     "rimraf": "^5.0.1"
   }
