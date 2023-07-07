@@ -45,6 +45,8 @@ export function useConnections() {
 
       reloadMeta(connection.id);
       select(connection);
+
+      return connection;
     } catch (error: any) {
       notifications.show({
         message: error.message,

@@ -5,16 +5,6 @@
 }
 
 .wrap,
-.favorites {
-  height: calc(100vh - 0em); /* (100vh - header) */
-  transition: all 0.2s ease-in-out;
-  overflow: hidden;
-}
-
-.favorites {
-  width: 200px;
-  flex-shrink: 0;
-}
 
 .content-right {
   flex: 1;

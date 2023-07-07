@@ -7,7 +7,6 @@ import { produce } from "immer";
 function FavoriteForm(props: {
   favorite: Favorite;
   onUpdate: (favoriteId: string, newData: Favorite) => void;
-  onClose: () => void;
   onDelete: () => void;
 }) {
   const form = useForm({
@@ -26,7 +25,7 @@ function FavoriteForm(props: {
   }, [props.favorite]);
 
   return (
-    <Box maw={300} mx="auto">
+    <Box maw={300}>
       <form onSubmit={form.onSubmit(onSubmit)}>
         <TextInput withAsterisk label="Email" {...form.getInputProps("name")} />
         <TextInput
@@ -54,11 +53,8 @@ function FavoriteForm(props: {
           data={["UTC", "Europe/Madrid", "Europe/Sofia", "America/New_York"]}
           {...form.getInputProps("timezone")}
         ></Select>
-        <Group position="right" mt="md">
+        <Group position="left" mt="md">
           <Button type="submit">Submit</Button>
-          <Button variant="default" onClick={() => props.onClose()}>
-            Close
-          </Button>
           <Button color="red" onClick={() => props.onDelete()}>
             Delete
           </Button>

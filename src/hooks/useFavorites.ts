@@ -27,13 +27,11 @@ export function useFavorites() {
     setItems([...items, newFavorite]);
   }
 
-  function remove() {
-    if (selected) {
-      storage.delete(selected.id).then(() => {
-        setItems(items.filter((f) => f.id !== selected.id));
-        clearSelection();
-      });
-    }
+  function remove(favorite: Favorite) {
+    storage.delete(favorite.id).then(() => {
+      setItems(items.filter((f) => f.id !== favorite.id));
+      clearSelection();
+    });
   }
 
   function clearSelection() {
