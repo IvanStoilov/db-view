@@ -127,25 +127,19 @@ export function useConnections() {
     setSelectedId(() => (connection === null ? null : connection.id));
   }
 
-  function setQuery(query: string) {
-    if (selectedId) {
-      updateConnection(selectedId, (conn) => (conn.query = query));
-    }
+  function setQuery(connectionId: string, query: string) {
+    updateConnection(connectionId, (conn) => (conn.query = query));
   }
 
   function clearError(connectionId: string) {
     updateConnection(connectionId, (conn) => (conn.error = null));
   }
 
-  function switchDatabase(db: string) {
-    if (selectedId) {
-      return dbClient.execute(selectedId, `USE ${db}`).then(() => {
-        reloadMeta(selectedId);
-        updateConnection(selectedId, (conn) => (conn.currentDatabase = db));
-      });
-    }
-
-    return Promise.resolve();
+  function switchDatabase(connectionId: string, db: string) {
+    return dbClient.execute(connectionId, `USE ${db}`).then(() => {
+      reloadMeta(connectionId);
+      updateConnection(connectionId, (conn) => (conn.currentDatabase = db));
+    });
   }
 
   function reloadMeta(connectionId: string) {

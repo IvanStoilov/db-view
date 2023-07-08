@@ -82,7 +82,7 @@ function SqlEditor(props: { connection: Connection }) {
           value={props.connection.query}
           height={editorHeight}
           defaultLanguage="sql"
-          onChange={(v) => connections.setQuery(v || "")}
+          onChange={(v) => connections.setQuery(props.connection.id, v || "")}
           onMount={handleOnEditorMount}
           options={{
             minimap: {

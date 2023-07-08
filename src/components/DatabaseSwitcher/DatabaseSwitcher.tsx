@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useAppContext } from "../../hooks/AppContext";
 
 const SYSTEM_DB: Record<string, true> = {
   information_schema: true,
@@ -11,9 +10,9 @@ const SYSTEM_DB: Record<string, true> = {
 export function DatabaseSwitcher(props: {
   databases: string[];
   currentDatabase: string;
+  onSwitch: (db: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { connections } = useAppContext();
 
   useEffect(() => {
     window.addEventListener("click", onOutsideClick);
@@ -76,7 +75,7 @@ export function DatabaseSwitcher(props: {
   }
 
   async function switchDatabase(db: string) {
-    await connections.switchDatabase(db);
+    props.onSwitch(db);
     setIsOpen(false);
   }
 }
