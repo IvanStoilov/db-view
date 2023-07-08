@@ -1,4 +1,11 @@
-import { Group, Navbar, ScrollArea, createStyles, rem } from "@mantine/core";
+import {
+  Group,
+  Navbar,
+  ScrollArea,
+  Title,
+  createStyles,
+  rem,
+} from "@mantine/core";
 import Favorites from "./Favorites/Favorites";
 
 const useStyles = createStyles((theme) => ({
@@ -42,10 +49,11 @@ export function MyNavbar() {
   const { classes } = useStyles();
 
   return (
-    <Navbar height={'100vh'} w={300} p="md" className={classes.navbar}>
+    <Navbar height={"100vh"} w={300} p="md" className={classes.navbar}>
       <Navbar.Section className={classes.header}>
-        <Group position="apart">
+        <Group position="left">
           <img src={"/logo/logo.svg"} width="48" alt="DB" />
+          <Title order={2}>DB Viewer</Title>
         </Group>
       </Navbar.Section>
       <Navbar.Section grow className={classes.links} component={ScrollArea}>

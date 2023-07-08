@@ -1,31 +1,53 @@
 import React, { useState } from "react";
 import { Connection } from "../../model/Connection";
 import { useAppContext } from "../../hooks/AppContext";
+import {
+  Box,
+  Group,
+  Input,
+  ScrollArea,
+  Stack,
+  UnstyledButton,
+} from "@mantine/core";
+import { IconTable } from "@tabler/icons-react";
 
 function TableList(props: { connection: Connection }) {
   const { connections } = useAppContext();
   const [filter, setFilter] = useState("");
 
   return (
-    <aside className="menu">
-      <div className="px-1">
-        <input
-          type="text"
-          className="input"
+    <Stack style={{ overflow: "hidden" }}>
+      <Box>
+        <Input
+          placeholder="Filter tables ..."
           onChange={(e) => setFilter(e.target.value)}
         />
-      </div>
-      <ul className="menu-list">{getFilteredTables().map(getTableItem)}</ul>
-    </aside>
+      </Box>
+      <ScrollArea>
+        <Stack>
+        {getFilteredTables().map(getTableItem)}
+        </Stack>
+      </ScrollArea>
+    </Stack>
   );
 
   function getTableItem(table: string) {
     return (
-      <li key={table}>
-        <a onDoubleClick={() => handleTableClick(table)}>
-          <span>{table}</span>
-        </a>
-      </li>
+      <UnstyledButton onClick={() => handleTableClick(table)}>
+        <Group spacing="sm" noWrap>
+          <IconTable size={14} stroke={1.2} style={{ flexShrink: 0 }} />
+          <Box
+            style={{
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+            }}
+            title={table}
+          >
+            {table}
+          </Box>
+        </Group>
+      </UnstyledButton>
     );
   }
 

@@ -30,7 +30,7 @@ function Favorites() {
         .filter((conn) => conn.favorite.id === fav.id)
         .map((conn) => ({
           id: conn.id,
-          label: conn.name,
+          label: `${conn.name} [${conn.currentDatabase}]`,
           onClick: () => navigate("/connections/" + conn.id),
           onClose: () => connections.close(conn),
         })),

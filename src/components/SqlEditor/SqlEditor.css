@@ -1,5 +1,5 @@
 .sql-editor {
-  flex: 1;
+  height: 100vh
 }
 
 .sql-editor__data {

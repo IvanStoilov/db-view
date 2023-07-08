@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Select } from "@mantine/core";
 
 const SYSTEM_DB: Record<string, true> = {
   information_schema: true,
@@ -12,70 +12,21 @@ export function DatabaseSwitcher(props: {
   currentDatabase: string;
   onSwitch: (db: string) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    window.addEventListener("click", onOutsideClick);
-    return () => {
-      window.removeEventListener("click", onOutsideClick);
-    };
-  }, [props.databases, props.currentDatabase]);
-
   return (
-    <div
-      className={"dropdown" + (isOpen ? " is-active" : "")}
-      onClick={(event) => event.stopPropagation()}
-    >
-      <div className="dropdown-trigger">
-        <button
-          className="button"
-          aria-haspopup="true"
-          aria-controls="dropdown-menu"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <span>{props.currentDatabase}</span>
-          <span className="icon is-small">
-            <i className="fas fa-angle-down" aria-hidden="true"></i>
-          </span>
-        </button>
-      </div>
-      <div className="dropdown-menu" id="dropdown-menu" role="menu">
-        <div className="dropdown-content">
-          {getDatabases().map(getItem)}
-          <hr className="dropdown-divider" />
-          {getSystemDatabases().map(getItem)}
-        </div>
-      </div>
-    </div>
+    <Select
+      value={props.currentDatabase}
+      placeholder={props.currentDatabase}
+      data={getDatabases()}
+      onChange={props.onSwitch}
+      searchable
+      nothingFound="Database not found"
+    />
   );
 
-  function getItem(db: string) {
-    return (
-      <a
-        key={db}
-        onClick={() => switchDatabase(db)}
-        className={
-          "dropdown-item" + (db === props.currentDatabase ? " is-active" : "")
-        }
-      >
-        {db}
-      </a>
-    );
-  }
-
-  function onOutsideClick() {
-    setIsOpen(false);
-  }
-
   function getDatabases() {
-    return props.databases.filter(db => !SYSTEM_DB[db]);
-  }
-  function getSystemDatabases() {
-    return props.databases.filter(db => !!SYSTEM_DB[db]);
-  }
-
-  async function switchDatabase(db: string) {
-    props.onSwitch(db);
-    setIsOpen(false);
+    return [
+      ...props.databases.filter((db) => !SYSTEM_DB[db]),
+      ...props.databases.filter((db) => SYSTEM_DB[db]),
+    ];
   }
 }

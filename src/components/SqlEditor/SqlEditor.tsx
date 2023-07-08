@@ -94,7 +94,7 @@ function SqlEditor(props: { connection: Connection }) {
       <div
         className="sql-editor__data ag-theme-alpine"
         style={{
-          height: `calc(100% - 6px - ${editorHeight}px - 24px)`,
+          height: `calc(100% - 7px - ${editorHeight}px - 24px)`,
         }}
       >
         <AgGridReact ref={grid} {...agGridProps}></AgGridReact>
