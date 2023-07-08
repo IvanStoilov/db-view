@@ -164,8 +164,8 @@ export function useConnections() {
     connectionId: string,
     fn: (conn: Connection) => void
   ) {
-    setItems((item) =>
-      produce(item, (draft) => {
+    setItems((items) =>
+      produce(items, (draft) => {
         fn(draft[connectionId]);
       })
     );

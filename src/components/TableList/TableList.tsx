@@ -33,7 +33,7 @@ function TableList(props: { connection: Connection }) {
 
   function getTableItem(table: string) {
     return (
-      <UnstyledButton onClick={() => handleTableClick(table)}>
+      <UnstyledButton onClick={() => handleTableClick(table)} key={table}>
         <Group spacing="sm" noWrap>
           <IconTable size={14} stroke={1.2} style={{ flexShrink: 0 }} />
           <Box
