@@ -1,7 +1,7 @@
 import React, { createContext, useContext } from "react";
-import { useConnections } from "./useConnections";
-import { useFavorites } from "./useFavorites";
-import { useModal } from "./useModal";
+import { useConnections } from "../hooks/useConnections";
+import { useFavorites } from "../hooks/useFavorites";
+import { useModal } from "../hooks/useModal";
 
 export const AppContext = createContext<{
   favorites: ReturnType<typeof useFavorites>;

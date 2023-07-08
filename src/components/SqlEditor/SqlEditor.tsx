@@ -6,7 +6,7 @@ import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Connection } from "../../model/Connection";
-import { useAppContext } from "../../hooks/AppContext";
+import { useAppContext } from "../../context/AppContext";
 import { ResizableBox } from "react-resizable";
 import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";

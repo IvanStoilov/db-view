@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Connection } from "../../model/Connection";
-import { useAppContext } from "../../hooks/AppContext";
+import { useAppContext } from "../../context/AppContext";
 import {
   Box,
   Group,

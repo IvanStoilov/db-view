@@ -4,7 +4,7 @@ import "./Favorites.css";
 import { LinksGroup } from "../NavbarLinksGroup";
 import { IconDatabase } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../../../hooks/AppContext";
+import { useAppContext } from "../../../context/AppContext";
 
 function Favorites() {
   const { favorites, connections } = useAppContext();

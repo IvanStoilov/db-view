@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { useAppContext } from "../../hooks/AppContext";
+import { useAppContext } from "../../context/AppContext";
 
 type ModalDialogOptions = {
   content: ReactNode;

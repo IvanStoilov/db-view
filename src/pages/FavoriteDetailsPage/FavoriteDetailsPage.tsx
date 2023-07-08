@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import FavoriteForm from "./FavoriteForm";
 import { Alert, Navbar, Title } from "@mantine/core";
-import { useAppContext } from "../../hooks/AppContext";
+import { useAppContext } from "../../context/AppContext";
 
 export function FavoriteDetailsPage() {
   const { favoriteId } = useParams();
