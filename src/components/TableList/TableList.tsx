@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import {
   Box,
   Group,
@@ -8,18 +8,11 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconTable } from "@tabler/icons-react";
-import { useConnectionsMetaContext } from "../../context/ConnectionsMetaContext";
-import { useParams } from "react-router-dom";
-import { useAppContext } from "../../context/AppContext";
 
-function TableList() {
-  const { connectionId } = useParams();
-  const { getConnectionMeta } = useConnectionsMetaContext();
-  const tables = connectionId
-    ? getConnectionMeta(connectionId)?.tables || []
-    : [];
-  const { connections } = useAppContext();
-
+function TableList(props: {
+  tables: string[];
+  onTableClick: (table: string) => void;
+}) {
   const [filter, setFilter] = useState("");
 
   return (
@@ -38,7 +31,7 @@ function TableList() {
 
   function getTableItem(table: string) {
     return (
-      <UnstyledButton onClick={() => handleTableClick(table)} key={table}>
+      <UnstyledButton onClick={() => props.onTableClick(table)} key={table}>
         <Group spacing="sm" noWrap>
           <IconTable size={14} stroke={1.2} style={{ flexShrink: 0 }} />
           <Box
@@ -56,15 +49,6 @@ function TableList() {
     );
   }
 
-  function handleTableClick(tableName: string) {
-    if (connectionId) {
-      connections.execute(
-        connectionId,
-        `SELECT * FROM \`${tableName}\` LIMIT 100`
-      );
-    }
-  }
-
   function getFilteredTables() {
     let filterFn = (table: string) => table.indexOf(filter) > -1;
 
@@ -73,8 +57,8 @@ function TableList() {
       filterFn = (table: string) => table.match(regexp) !== null;
     } catch {}
 
-    return tables.filter((table) => !filter || filterFn(table));
+    return props.tables.filter((table) => !filter || filterFn(table));
   }
 }
 
-export default TableList;
+export default memo(TableList);
