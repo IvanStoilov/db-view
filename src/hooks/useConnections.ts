@@ -10,6 +10,10 @@ export function useConnections() {
   const selected = selectedId ? items[selectedId] || null : null;
   const itemsArray = Object.values(items);
 
+  function getConnectionById(id: string): Connection | null {
+    return items[id] || null;
+  }
+
   async function connect(favorite: Favorite) {
     const connectionsWithSameNameCount = itemsArray.filter(
       (conn) => conn.favorite.name === favorite.name
@@ -175,6 +179,7 @@ export function useConnections() {
     items: itemsArray,
     selected,
 
+    getConnectionById,
     connect,
     close,
     select,

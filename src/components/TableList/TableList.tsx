@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { Connection } from "../../model/Connection";
-import { useAppContext } from "../../context/AppContext";
 import {
   Box,
   Group,
@@ -10,9 +8,18 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconTable } from "@tabler/icons-react";
+import { useConnectionsMetaContext } from "../../context/ConnectionsMetaContext";
+import { useParams } from "react-router-dom";
+import { useAppContext } from "../../context/AppContext";
 
-function TableList(props: { connection: Connection }) {
+function TableList() {
+  const { connectionId } = useParams();
+  const { getConnectionMeta } = useConnectionsMetaContext();
+  const tables = connectionId
+    ? getConnectionMeta(connectionId)?.tables || []
+    : [];
   const { connections } = useAppContext();
+
   const [filter, setFilter] = useState("");
 
   return (
@@ -24,9 +31,7 @@ function TableList(props: { connection: Connection }) {
         />
       </Box>
       <ScrollArea>
-        <Stack>
-        {getFilteredTables().map(getTableItem)}
-        </Stack>
+        <Stack>{getFilteredTables().map(getTableItem)}</Stack>
       </ScrollArea>
     </Stack>
   );
@@ -52,10 +57,12 @@ function TableList(props: { connection: Connection }) {
   }
 
   function handleTableClick(tableName: string) {
-    connections.execute(
-      props.connection.id,
-      `SELECT * FROM \`${tableName}\` LIMIT 100`
-    );
+    if (connectionId) {
+      connections.execute(
+        connectionId,
+        `SELECT * FROM \`${tableName}\` LIMIT 100`
+      );
+    }
   }
 
   function getFilteredTables() {
@@ -66,9 +73,7 @@ function TableList(props: { connection: Connection }) {
       filterFn = (table: string) => table.match(regexp) !== null;
     } catch {}
 
-    return props.connection.tables.filter(
-      (table) => !filter || filterFn(table)
-    );
+    return tables.filter((table) => !filter || filterFn(table));
   }
 }
 

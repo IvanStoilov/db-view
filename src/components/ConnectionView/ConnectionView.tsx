@@ -1,10 +1,11 @@
-import { Box, Grid, Group, Stack, createStyles, rem } from "@mantine/core";
+import { Alert, Box, Group, Stack, createStyles, rem } from "@mantine/core";
 import { useAppContext } from "../../context/AppContext";
 import { Connection } from "../../model/Connection";
 import { DatabaseSwitcher } from "../DatabaseSwitcher/DatabaseSwitcher";
 import SqlEditor from "../SqlEditor/SqlEditor";
 import TableList from "../TableList/TableList";
 import "./ConnectionView.css";
+import { useParams } from "react-router-dom";
 
 const useStyles = createStyles((theme) => ({
   tables: {
@@ -16,9 +17,9 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-export function ConnectionView(props: { connection: Connection }) {
-  const { connections } = useAppContext();
+export function ConnectionView() {
   const { classes } = useStyles();
+  
   return (
     <Group h="100vh" spacing={0}>
       <Stack
@@ -26,15 +27,11 @@ export function ConnectionView(props: { connection: Connection }) {
         h="100vh"
         className={classes.tables}
       >
-        <DatabaseSwitcher
-          databases={props.connection.databases}
-          currentDatabase={props.connection.currentDatabase}
-          onSwitch={(db) => connections.switchDatabase(props.connection.id, db)}
-        />
-        <TableList connection={props.connection} />
+        <DatabaseSwitcher />
+        <TableList />
       </Stack>
       <Box style={{ flex: "1 1 auto" }}>
-        <SqlEditor connection={props.connection} />
+        <SqlEditor />
       </Box>
     </Group>
   );

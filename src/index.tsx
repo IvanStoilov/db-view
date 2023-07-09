@@ -6,6 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { AppContextProvider } from "./context/AppContext";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
+import { ConnectionsMetaContextProvider } from "./context/ConnectionsMetaContext";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -13,11 +14,13 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <AppContextProvider>
-      <MantineProvider withGlobalStyles withNormalizeCSS>
-        <ModalsProvider>
-          <App />
-        </ModalsProvider>
-      </MantineProvider>
+      <ConnectionsMetaContextProvider>
+        <MantineProvider withGlobalStyles withNormalizeCSS>
+          <ModalsProvider>
+            <App />
+          </ModalsProvider>
+        </MantineProvider>
+      </ConnectionsMetaContextProvider>
     </AppContextProvider>
   </React.StrictMode>
 );

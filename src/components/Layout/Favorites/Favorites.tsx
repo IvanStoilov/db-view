@@ -5,9 +5,11 @@ import { LinksGroup } from "../NavbarLinksGroup";
 import { IconDatabase } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../../context/AppContext";
+import { useConnectionsMetaContext } from "../../../context/ConnectionsMetaContext";
 
 function Favorites() {
   const { favorites, connections } = useAppContext();
+  const { loadConnectionTables } = useConnectionsMetaContext();
   const navigate = useNavigate();
 
   return (
@@ -39,6 +41,7 @@ function Favorites() {
         label: "Add workspace",
         onClick: () => {
           connections.connect(fav).then((conn) => {
+            loadConnectionTables(conn.id, fav.options.database);
             navigate("/connections/" + conn.id);
           });
         },

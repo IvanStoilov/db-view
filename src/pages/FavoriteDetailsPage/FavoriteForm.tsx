@@ -27,7 +27,13 @@ function FavoriteForm(props: {
   return (
     <Box maw={300}>
       <form onSubmit={form.onSubmit(onSubmit)}>
-        <TextInput withAsterisk label="Email" {...form.getInputProps("name")} />
+        <TextInput withAsterisk label="Name" {...form.getInputProps("name")} />
+        <TextInput
+          withAsterisk
+          mt="md"
+          label="Host"
+          {...form.getInputProps("host")}
+        />
         <TextInput
           mt="md"
           withAsterisk

@@ -16,6 +16,7 @@ import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
 import { Alert, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
+import { useGetCurrentConnection } from "../../hooks/useGetCurrentConnection";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -24,14 +25,15 @@ window.Buffer = {
   isBuffer: () => false,
 } as any;
 
-function SqlEditor(props: { connection: Connection }) {
+function SqlEditor() {
   const { connections } = useAppContext();
+  const connection = useGetCurrentConnection();
+
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
-  const connectionIdRef = useRef(props.connection.id);
   const grid = useRef<AgGridReact | null>(null);
-  const agGridProps: AgGridReactProps = useMemo(() => ({
-    rowData: props.connection.queryResult?.data,
-    columnDefs: props.connection.queryResult?.columns.map((col) => ({
+  const agGridProps: AgGridReactProps = useMemo(() => (!connection ? {} : {
+    rowData: connection.queryResult?.data,
+    columnDefs: connection.queryResult?.columns.map((col) => ({
       field: col.name,
       type: col.type.toLowerCase(),
       headerName: `${col.name} (${col.type.toLowerCase()})`,
@@ -56,14 +58,14 @@ function SqlEditor(props: { connection: Connection }) {
     suppressCellFocus: true,
     loadingOverlayComponent: CustomLoadingOverlay,
     loadingOverlayComponentParams: {
-      onCancel: () => dbClient.cancelExecution(connectionIdRef.current),
+      onCancel: () => connection && dbClient.cancelExecution(connection.id),
     },
     onGridReady: (e) => e.api.hideOverlay(),
-  }), [props.connection.queryResult])
+  }), [connection?.queryResult])
 
-  useEffect(() => {
-    connectionIdRef.current = props.connection.id;
-  }, [props.connection]);
+  if (!connection) {
+    return null;
+  }
 
   return (
     <div className="sql-editor">
@@ -79,10 +81,10 @@ function SqlEditor(props: { connection: Connection }) {
         )}
       >
         <Editor
-          value={props.connection.query}
+          value={connection.query}
           height={editorHeight}
           defaultLanguage="sql"
-          onChange={(v) => connections.setQuery(props.connection.id, v || "")}
+          onChange={(v) => connections.setQuery(connection.id, v || "")}
           onMount={handleOnEditorMount}
           options={{
             minimap: {
@@ -100,7 +102,7 @@ function SqlEditor(props: { connection: Connection }) {
         <AgGridReact ref={grid} {...agGridProps}></AgGridReact>
       </div>
       <div style={{ height: "24px" }}>
-        <StatusBar result={props.connection.queryResult} />
+        <StatusBar result={connection.queryResult} />
       </div>
     </div>
   );
@@ -139,6 +141,10 @@ function SqlEditor(props: { connection: Connection }) {
   }
 
   async function executeQuery(query: string, updateLast = true) {
+    if (!connection) {
+      return ;
+    }
+
     const executionId = Math.random() + "";
     notifications.clean();
     notifications.show({
@@ -154,7 +160,7 @@ function SqlEditor(props: { connection: Connection }) {
           message: "Cancelling ...",
         });
         dbClient
-          .cancelExecution(connectionIdRef.current)
+          .cancelExecution(connection.id)
           .then(() => {
             notifications.update({
               id: executionId,
@@ -172,10 +178,10 @@ function SqlEditor(props: { connection: Connection }) {
       },
     });
 
-    await dbClient.cancelExecution(connectionIdRef.current);
+    await dbClient.cancelExecution(connection.id);
 
     await connections
-      .execute(connectionIdRef.current, query, updateLast)
+      .execute(connection.id, query, updateLast)
       .then(() => {
         notifications.update({
           id: executionId,
@@ -200,7 +206,7 @@ function SqlEditor(props: { connection: Connection }) {
       .map((c) => `dbviewtemptable.\`${c.colId}\` ${c.sort}`)
       .join(", ");
 
-    let sql = props.connection.queryResult?.query;
+    let sql = connection?.queryResult?.query;
     if (sql) {
       let limitPos = sql.lastIndexOf("LIMIT");
       let limitAddOn = "";
@@ -232,11 +238,11 @@ function SqlEditor(props: { connection: Connection }) {
   }
 
   async function onCellEditingStopped(event: CellEditingStoppedEvent<any>) {
-    if (event.newValue === event.oldValue) {
+    if (event.newValue === event.oldValue || !connection) {
       return;
     }
 
-    const columns = props.connection.queryResult?.columns || [];
+    const columns = connection.queryResult?.columns || [];
     const columnData = columns.find((c) => c.name === event.colDef.field);
 
     if (columns.length && columnData && event.colDef.field) {
@@ -245,7 +251,7 @@ function SqlEditor(props: { connection: Connection }) {
       const db = columnData.db;
 
       const result = await dbClient.execute(
-        props.connection.id,
+        connection.id,
         `
       SELECT COLUMN_NAME as col
       FROM information_schema.COLUMNS
