@@ -1,4 +1,5 @@
 import {
+  Button,
   Group,
   Navbar,
   ScrollArea,
@@ -6,7 +7,8 @@ import {
   createStyles,
   rem,
 } from "@mantine/core";
-import Favorites from "./Favorites/Favorites";
+import { Favorites } from "./Favorites/Favorites";
+import { useAppContext } from "../../context/AppContext";
 
 const useStyles = createStyles((theme) => ({
   navbar: {
@@ -47,6 +49,7 @@ const useStyles = createStyles((theme) => ({
 
 export function MyNavbar() {
   const { classes } = useStyles();
+  const { favorites } = useAppContext();
 
   return (
     <Navbar height={"100vh"} w={300} p="md" className={classes.navbar}>
@@ -60,6 +63,10 @@ export function MyNavbar() {
         <div className={classes.linksInner}>
           <Favorites />
         </div>
+      </Navbar.Section>
+
+      <Navbar.Section>
+        <Button variant="subtle" onClick={() => favorites.add()}>Add favorite</Button>
       </Navbar.Section>
     </Navbar>
   );
