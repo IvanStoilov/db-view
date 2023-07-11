@@ -42,6 +42,7 @@ export function useConnectionsMeta() {
   }
 
   return {
+    meta,
     loadConnectionTables,
     switchDatabase,
     getConnectionMeta,

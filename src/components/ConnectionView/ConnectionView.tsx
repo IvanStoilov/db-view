@@ -1,4 +1,4 @@
-import { Box, Group, Stack, createStyles, rem } from "@mantine/core";
+import { Alert, Box, Group, Stack, createStyles, rem } from "@mantine/core";
 import { useAppContext } from "../../context/AppContext";
 import { DatabaseSwitcher } from "../DatabaseSwitcher/DatabaseSwitcher";
 import SqlEditor from "../SqlEditor/SqlEditor";
@@ -46,13 +46,13 @@ export function ConnectionView() {
   );
 
   if (!connectionId) {
-    return null;
+    return <Alert color="red">Connection id not passed.</Alert>;
   }
 
   const meta = getConnectionMeta(connectionId);
 
   if (!meta) {
-    return null;
+    return <Alert color="red">Meta not found for connection {connectionId}.</Alert>;
   }
 
   return (
