@@ -1,20 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Favorite } from "../../../model/Favorite";
 import "./Favorites.css";
 import { LinksGroup } from "../NavbarLinksGroup";
 import { IconDatabase } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { useAppContext } from "../../../context/AppContext";
-import { useConnectionsMetaContext } from "../../../context/ConnectionsMetaContext";
+import {
+  fetchFavorites,
+  selectAllFavorites,
+} from "../../../store/favoritesSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/store";
+import {
+  closeConnection,
+  openConnection,
+  selectAllConnections,
+} from "../../../store/connectionsSlice";
 
 function Favorites() {
-  const { favorites, connections } = useAppContext();
-  const { loadConnectionTables } = useConnectionsMetaContext();
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector(selectAllFavorites);
+  const connections = useAppSelector(selectAllConnections);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetchFavorites());
+  }, []);
 
   return (
     <>
-      {favorites.items.map((favorite) => (
+      {favorites.map((favorite) => (
         <LinksGroup
           key={favorite.id}
           icon={IconDatabase}
@@ -28,21 +41,20 @@ function Favorites() {
 
   function getConnectionLinks(fav: Favorite) {
     return [
-      ...connections.items
+      ...connections
         .filter((conn) => conn.favorite.id === fav.id)
         .map((conn) => ({
           id: conn.id,
           label: `${conn.name} [${conn.currentDatabase}]`,
           onClick: () => navigate("/connections/" + conn.id),
-          onClose: () => connections.close(conn),
+          onClose: () => dispatch(closeConnection(conn.id)),
         })),
       {
         id: "add",
         label: "Add workspace",
         onClick: () => {
-          connections.connect(fav).then((conn) => {
-            loadConnectionTables(conn.id, fav.options.database);
-            navigate("/connections/" + conn.id);
+          dispatch(openConnection({ favorite: fav })).then((conn) => {
+            navigate("/connections/" + conn.payload);
           });
         },
       },

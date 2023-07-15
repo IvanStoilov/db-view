@@ -7,21 +7,25 @@ import { AppContextProvider } from "./context/AppContext";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { ConnectionsMetaContextProvider } from "./context/ConnectionsMetaContext";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <AppContextProvider>
-      <ConnectionsMetaContextProvider>
-        <MantineProvider withGlobalStyles withNormalizeCSS>
-          <ModalsProvider>
-            <App />
-          </ModalsProvider>
-        </MantineProvider>
-      </ConnectionsMetaContextProvider>
-    </AppContextProvider>
+    <Provider store={store}>
+      <AppContextProvider>
+        <ConnectionsMetaContextProvider>
+          <MantineProvider withGlobalStyles withNormalizeCSS>
+            <ModalsProvider>
+              <App />
+            </ModalsProvider>
+          </MantineProvider>
+        </ConnectionsMetaContextProvider>
+      </AppContextProvider>
+    </Provider>
   </React.StrictMode>
 );
 
