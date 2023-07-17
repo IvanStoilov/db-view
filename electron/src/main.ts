@@ -2,6 +2,7 @@ import path from "path";
 import "./connections/storage";
 import { app, BrowserWindow, globalShortcut, session } from "electron";
 import { ConnectionManager } from "./connections/ConnectionManager";
+import installer, { REDUX_DEVTOOLS } from "electron-devtools-installer";
 
 let mainWindow: BrowserWindow;
 
@@ -43,6 +44,7 @@ app.whenReady().then(async () => {
   await session.defaultSession.loadExtension(
     "/Users/ivan/Downloads/ReactDevTools"
   );
+  await installer(REDUX_DEVTOOLS);
 
   connectionManager = new ConnectionManager();
 
