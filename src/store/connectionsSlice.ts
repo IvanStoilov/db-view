@@ -51,23 +51,14 @@ export const openConnection = createAsyncThunk(
       ...favorite.options,
     };
 
-    try {
-      await dbClient.connect(options);
-      const [tables, databases] = await loadMeta(options.id);
+    await dbClient.connect(options);
+    const [tables, databases] = await loadMeta(options.id);
 
-      return {
-        ...connection,
-        tables,
-        databases,
-      };
-    } catch (error: any) {
-      // TODO
-      // notifications.show({
-      //   message: error.message,
-      //   color: "red",
-      // });
-      throw error;
-    }
+    return {
+      ...connection,
+      tables,
+      databases,
+    };
   }
 );
 
@@ -283,5 +274,6 @@ export const selectCurrentWorkplace = createSelector(
 );
 
 export const setQuery = connectionsSlice.actions.setQuery;
+export const selectConnection = connectionsSlice.actions.selectConnection;
 
 export default connectionsSlice.reducer;

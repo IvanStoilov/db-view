@@ -13,7 +13,9 @@ import {
   closeConnection,
   openConnection,
   selectAllConnections,
+  selectConnection,
 } from "../../../store/connectionsSlice";
+import { notifications } from "@mantine/notifications";
 
 function Favorites() {
   const dispatch = useAppDispatch();
@@ -46,15 +48,25 @@ function Favorites() {
         .map((conn) => ({
           id: conn.id,
           label: `${conn.name} [${conn.currentDatabase}]`,
-          onClick: () => navigate("/connections/" + conn.id),
+          onClick: () => {
+            dispatch(selectConnection(conn.id));
+            navigate("/connections/" + conn.id);
+          },
           onClose: () => dispatch(closeConnection(conn.id)),
         })),
       {
         id: "add",
         label: "Add workspace",
         onClick: () => {
-          dispatch(openConnection({ favorite: fav })).then((conn) => {
-            navigate("/connections/" + conn.payload);
+          dispatch(openConnection({ favorite: fav })).then((result: any) => {
+            if (result.error) {
+              notifications.show({
+                message: result.error.message,
+                color: "red",
+              });
+            } else {
+              navigate("/connections/" + result.payload.id);
+            }
           });
         },
       },
