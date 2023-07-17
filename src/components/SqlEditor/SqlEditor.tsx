@@ -1,12 +1,10 @@
 import { AgGridReact, AgGridReactProps } from "ag-grid-react";
 import { SortChangedEvent, CellEditingStoppedEvent } from "ag-grid-community";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Editor, OnMount } from "@monaco-editor/react";
 import "./SqlEditor.css";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { Connection } from "../../model/Connection";
-import { useAppContext } from "../../context/AppContext";
 import { ResizableBox } from "react-resizable";
 import { CustomLoadingOverlay } from "./GridLoadingOverlay";
 import { StatusBar } from "./StatusBar";
@@ -16,7 +14,13 @@ import { notifications } from "@mantine/notifications";
 import { modals } from "@mantine/modals";
 import { Alert, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
-import { useGetCurrentConnection } from "../../hooks/useGetCurrentConnection";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import {
+  selectSelectedConnection,
+  setQuery,
+  executeQuery as executeQueryAction,
+  selectCurrentWorkplace,
+} from "../../store/connectionsSlice";
 
 const EDITOR_HEIGHT_INITIAL = 100;
 
@@ -26,42 +30,51 @@ window.Buffer = {
 } as any;
 
 function SqlEditor() {
-  const { connections } = useAppContext();
-  const connection = useGetCurrentConnection();
+  const connection = useAppSelector(selectSelectedConnection);
+  const workspace = useAppSelector(selectCurrentWorkplace);
+  const dispatch = useAppDispatch();
 
   const [editorHeight, setEditorHeight] = useState(EDITOR_HEIGHT_INITIAL);
   const grid = useRef<AgGridReact | null>(null);
-  const agGridProps: AgGridReactProps = useMemo(() => (!connection ? {} : {
-    rowData: connection.queryResult?.data,
-    columnDefs: connection.queryResult?.columns.map((col) => ({
-      field: col.name,
-      type: col.type.toLowerCase(),
-      headerName: `${col.name} (${col.type.toLowerCase()})`,
-      headerTooltip: `${col.name} (${col.type.toLowerCase()})`,
-      headerComponent: GridCustomHeader,
-      headerComponentParams: { type: col.type.toLowerCase() },
-      editable: true,
-      sortable: true,
-      resizable: true,
-      cellRenderer: (cell: any) => cellRenderer(cell, col.type.toLowerCase()),
-    })),
-    suppressFieldDotNotation: true,
-    stopEditingWhenCellsLoseFocus: true,
-    readOnlyEdit: true,
-    onCellEditingStopped,
-    onSortChanged: handleSortChange,
-    suppressContextMenu: true,
-    preventDefaultOnContextMenu: true,
-    rowHeight: 28,
-    onNewColumnsLoaded: (e) => e.columnApi.autoSizeAllColumns(),
-    enableCellTextSelection: true,
-    suppressCellFocus: true,
-    loadingOverlayComponent: CustomLoadingOverlay,
-    loadingOverlayComponentParams: {
-      onCancel: () => connection && dbClient.cancelExecution(connection.id),
-    },
-    onGridReady: (e) => e.api.hideOverlay(),
-  }), [connection?.queryResult])
+  const agGridProps: AgGridReactProps = useMemo(
+    () =>
+      !connection
+        ? {}
+        : {
+            rowData: workspace.queryResult?.data,
+            columnDefs: workspace.queryResult?.columns.map((col) => ({
+              field: col.name,
+              type: col.type.toLowerCase(),
+              headerName: `${col.name} (${col.type.toLowerCase()})`,
+              headerTooltip: `${col.name} (${col.type.toLowerCase()})`,
+              headerComponent: GridCustomHeader,
+              headerComponentParams: { type: col.type.toLowerCase() },
+              editable: true,
+              sortable: true,
+              resizable: true,
+              cellRenderer: (cell: any) =>
+                cellRenderer(cell, col.type.toLowerCase()),
+            })),
+            suppressFieldDotNotation: true,
+            stopEditingWhenCellsLoseFocus: true,
+            readOnlyEdit: true,
+            onCellEditingStopped,
+            onSortChanged: handleSortChange,
+            suppressContextMenu: true,
+            preventDefaultOnContextMenu: true,
+            rowHeight: 28,
+            onNewColumnsLoaded: (e) => e.columnApi.autoSizeAllColumns(),
+            enableCellTextSelection: true,
+            suppressCellFocus: true,
+            loadingOverlayComponent: CustomLoadingOverlay,
+            loadingOverlayComponentParams: {
+              onCancel: () =>
+                connection && dbClient.cancelExecution(connection.id),
+            },
+            onGridReady: (e) => e.api.hideOverlay(),
+          },
+    [workspace?.queryResult]
+  );
 
   if (!connection) {
     return null;
@@ -84,7 +97,7 @@ function SqlEditor() {
           value={connection.query}
           height={editorHeight}
           defaultLanguage="sql"
-          onChange={(v) => connections.setQuery(connection.id, v || "")}
+          onChange={(v) => dispatch(setQuery(v || ""))}
           onMount={handleOnEditorMount}
           options={{
             minimap: {
@@ -102,7 +115,7 @@ function SqlEditor() {
         <AgGridReact ref={grid} {...agGridProps}></AgGridReact>
       </div>
       <div style={{ height: "24px" }}>
-        <StatusBar result={connection.queryResult} />
+        <StatusBar result={workspace.queryResult} />
       </div>
     </div>
   );
@@ -140,9 +153,9 @@ function SqlEditor() {
     }
   }
 
-  async function executeQuery(query: string, updateLast = true) {
+  async function executeQuery(query: string, updateLastQuery = true) {
     if (!connection) {
-      return ;
+      return;
     }
 
     const executionId = Math.random() + "";
@@ -180,8 +193,7 @@ function SqlEditor() {
 
     await dbClient.cancelExecution(connection.id);
 
-    await connections
-      .execute(connection.id, query, updateLast)
+    dispatch(executeQueryAction({ query, updateLastQuery }))
       .then(() => {
         notifications.update({
           id: executionId,
@@ -206,7 +218,7 @@ function SqlEditor() {
       .map((c) => `dbviewtemptable.\`${c.colId}\` ${c.sort}`)
       .join(", ");
 
-    let sql = connection?.queryResult?.query;
+    let sql = workspace?.queryResult?.query;
     if (sql) {
       let limitPos = sql.lastIndexOf("LIMIT");
       let limitAddOn = "";
@@ -242,7 +254,7 @@ function SqlEditor() {
       return;
     }
 
-    const columns = connection.queryResult?.columns || [];
+    const columns = workspace.queryResult?.columns || [];
     const columnData = columns.find((c) => c.name === event.colDef.field);
 
     if (columns.length && columnData && event.colDef.field) {
@@ -286,7 +298,9 @@ function SqlEditor() {
                 title="To execute"
                 color="red"
               >
-                <pre style={{ whiteSpace: "break-spaces", padding: 0 }}>{newSql}</pre>
+                <pre style={{ whiteSpace: "break-spaces", padding: 0 }}>
+                  {newSql}
+                </pre>
               </Alert>
             ),
             labels: { confirm: "Confirm", cancel: "Cancel" },

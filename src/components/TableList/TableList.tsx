@@ -8,17 +8,11 @@ import {
   UnstyledButton,
 } from "@mantine/core";
 import { IconTable } from "@tabler/icons-react";
-import { useConnectionsMetaContext } from "../../context/ConnectionsMetaContext";
-import { useParams } from "react-router-dom";
-import { useAppContext } from "../../context/AppContext";
+import { useAppSelector } from "../../store/store";
+import { selectConnectionTables } from "../../store/connectionsSlice";
 
 function TableList() {
-  const { connectionId } = useParams();
-  const { getConnectionMeta } = useConnectionsMetaContext();
-  const tables = connectionId
-    ? getConnectionMeta(connectionId)?.tables || []
-    : [];
-  const { connections } = useAppContext();
+  const tables = useAppSelector(selectConnectionTables);
 
   const [filter, setFilter] = useState("");
 
@@ -57,12 +51,12 @@ function TableList() {
   }
 
   function handleTableClick(tableName: string) {
-    if (connectionId) {
-      connections.execute(
-        connectionId,
-        `SELECT * FROM \`${tableName}\` LIMIT 100`
-      );
-    }
+    // if (connection?.id) {
+      // connections.execute(
+      //   connectionId,
+      //   `SELECT * FROM \`${tableName}\` LIMIT 100`
+      // );
+    // }
   }
 
   function getFilteredTables() {

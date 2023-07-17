@@ -1,6 +1,10 @@
 import { Select } from "@mantine/core";
-import { useConnectionsMetaContext } from "../../context/ConnectionsMetaContext";
-import { useParams } from "react-router-dom";
+import {
+  selectConnectionDatabases,
+  selectCurrentDatabase,
+  switchDatabase,
+} from "../../store/connectionsSlice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 
 const SYSTEM_DB: Record<string, true> = {
   information_schema: true,
@@ -10,26 +14,16 @@ const SYSTEM_DB: Record<string, true> = {
 };
 
 export function DatabaseSwitcher() {
-  const { connectionId } = useParams();
-  const connectionsMeta = useConnectionsMetaContext();
-  const meta = connectionId
-    ? connectionsMeta.getConnectionMeta(connectionId)
-    : null;
-
-  if (!meta) {
-    return null;
-  }
+  const databases = useAppSelector(selectConnectionDatabases);
+  const currentDatabase = useAppSelector(selectCurrentDatabase);
+  const dispatch = useAppDispatch();
 
   return (
     <Select
-      value={meta.currentDatabase}
-      placeholder={meta.currentDatabase}
+      value={currentDatabase}
+      placeholder={currentDatabase}
       data={getDatabases()}
-      onChange={(database) =>
-        database &&
-        connectionId &&
-        connectionsMeta.switchDatabase(connectionId, database)
-      }
+      onChange={(database) => database && dispatch(switchDatabase(database))}
       searchable
       nothingFound="Database not found"
     />
@@ -37,8 +31,8 @@ export function DatabaseSwitcher() {
 
   function getDatabases() {
     return [
-      ...(meta?.databases.filter((db) => !SYSTEM_DB[db]) || []),
-      ...(meta?.databases.filter((db) => SYSTEM_DB[db]) || []),
+      ...(databases.filter((db) => !SYSTEM_DB[db]) || []),
+      ...(databases.filter((db) => SYSTEM_DB[db]) || []),
     ];
   }
 }

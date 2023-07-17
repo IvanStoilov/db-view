@@ -5,7 +5,6 @@ import { DatabaseSwitcher } from "../DatabaseSwitcher/DatabaseSwitcher";
 import SqlEditor from "../SqlEditor/SqlEditor";
 import TableList from "../TableList/TableList";
 import "./ConnectionView.css";
-import { useParams } from "react-router-dom";
 
 const useStyles = createStyles((theme) => ({
   tables: {
