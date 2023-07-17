@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { useAppContext } from "../../context/AppContext";
 
 type ModalDialogOptions = {
   content: ReactNode;
@@ -12,7 +11,7 @@ export type ModalDialogHandle = {
 };
 
 export function ModalDialog() {
-  const { modal } = useAppContext();
+  const { modal } = { modal: { options: null as any, hideModal: () => {} } }; // TODO, fix useAppContext();
 
   return (
     <div className={"modal" + (modal.options ? " is-active" : "")}>

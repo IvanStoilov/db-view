@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
 import FavoriteForm from "./FavoriteForm";
 import { Alert, Navbar, Title } from "@mantine/core";
-import { useAppContext } from "../../context/AppContext";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { removeFavorite, selectFavoriteById, updateFavorite } from "../../store/favoritesSlice";
 
 export function FavoriteDetailsPage() {
   const { favoriteId } = useParams();
-  const { favorites } = useAppContext();
-  const favorite = favorites.items.find((fav) => fav.id === favoriteId);
+  const favorite = useAppSelector(state => selectFavoriteById(state, favoriteId || ''));
+  const dispatch = useAppDispatch();
 
   if (!favorite) {
     return <Alert>Favorite not found</Alert>;
@@ -22,8 +23,8 @@ export function FavoriteDetailsPage() {
 
       <FavoriteForm
         favorite={favorite}
-        onDelete={() => favorites.remove(favorite)}
-        onUpdate={favorites.update}
+        onDelete={() => dispatch(removeFavorite(favorite.id))}
+        onUpdate={(id, updated) => dispatch(updateFavorite({ id, updated }))}
       />
     </>
   );

@@ -134,8 +134,6 @@ export const selectConnection = createAsyncThunk(
         connectionId
       );
 
-      console.log({ connection });
-
       if (!connection) {
         throw new Error("No connection selected");
       }
@@ -225,7 +223,6 @@ const connectionsSlice = createSlice({
       }
     );
     builder.addCase(executeQuery.pending, (draft) => {
-      console.log("Pending ...");
       const workpalce = draft.workspaces[draft.selectedConnectionId || -1];
       if (workpalce) {
         workpalce.error = null;

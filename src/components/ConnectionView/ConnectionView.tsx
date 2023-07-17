@@ -1,6 +1,4 @@
-import { Alert, Box, Group, Stack, createStyles, rem } from "@mantine/core";
-import { useAppContext } from "../../context/AppContext";
-import { Connection } from "../../model/Connection";
+import { Box, Group, Stack, createStyles, rem } from "@mantine/core";
 import { DatabaseSwitcher } from "../DatabaseSwitcher/DatabaseSwitcher";
 import SqlEditor from "../SqlEditor/SqlEditor";
 import TableList from "../TableList/TableList";

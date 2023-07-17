@@ -94,7 +94,7 @@ function SqlEditor() {
         )}
       >
         <Editor
-          value={connection.query}
+          value={workspace.query}
           height={editorHeight}
           defaultLanguage="sql"
           onChange={(v) => dispatch(setQuery(v || ""))}
