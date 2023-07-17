@@ -6,4 +6,5 @@ export interface DbClient {
   close(connectionId: string): Promise<void>;
   execute(connectionId: string, query: string): Promise<QueryResult>;
   cancelExecution(connectionId: string): Promise<void>;
+  isConnected(connectionId: string): Promise<boolean>;
 }

@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-const dbClient = ["connect", "close", "execute", "cancelExecution"]
+const dbClient = [
+  "connect",
+  "close",
+  "execute",
+  "cancelExecution",
+  "isConnected",
+]
   .filter((method) => method !== "constructor")
   .reduce(
     (obj, method) => ({

@@ -1,5 +1,4 @@
 import {
-  PayloadAction,
   createAsyncThunk,
   createEntityAdapter,
   createSelector,
@@ -14,6 +13,8 @@ export const connectionsAdapter = createEntityAdapter<Connection>();
 // export const fetchConnections = createAsyncThunk("connections/fetch", () =>
 //   storage.getAll()
 // );
+
+// === Async actions ===
 
 export const closeConnection = createAsyncThunk(
   "connections/close",
@@ -122,6 +123,40 @@ export const executeQuery = createAsyncThunk(
   }
 );
 
+export const selectConnection = createAsyncThunk(
+  "connections/select",
+  async (connectionId: string, api) => {
+    const isAlreadyConnected = await dbClient.isConnected(connectionId);
+
+    if (!isAlreadyConnected) {
+      const connection = selectConnectionById(
+        api.getState() as RootState,
+        connectionId
+      );
+
+      console.log({ connection });
+
+      if (!connection) {
+        throw new Error("No connection selected");
+      }
+
+      await dbClient.connect({
+        type: "mysql" as const,
+        id: connection.id,
+        favoriteId: connection.favorite.id,
+        ...connection.favorite.options,
+      });
+
+      await dbClient.execute(
+        connection.id,
+        `USE ${connection.currentDatabase}`
+      );
+    }
+
+    return connectionId;
+  }
+);
+
 function loadMeta(connectionId: string) {
   return Promise.all([
     dbClient.execute(connectionId, "SHOW TABLES;").then((result) => {
@@ -135,6 +170,8 @@ function loadMeta(connectionId: string) {
   ]);
 }
 
+// === Reducer ===
+
 const connectionsSlice = createSlice({
   name: "connections",
   initialState: {
@@ -143,9 +180,6 @@ const connectionsSlice = createSlice({
     selectedConnectionId: null as string | null,
   },
   reducers: {
-    selectConnection(draft, { payload }: { payload: string }) {
-      draft.selectedConnectionId = payload;
-    },
     setQuery(draft, { payload: query }) {
       const workspace = draft.workspaces[draft.selectedConnectionId || -1];
       if (workspace) {
@@ -164,6 +198,12 @@ const connectionsSlice = createSlice({
         queryResult: null,
       };
     });
+    builder.addCase(
+      selectConnection.fulfilled,
+      (draft, { payload: connectionId }) => {
+        draft.selectedConnectionId = connectionId;
+      }
+    );
     builder.addCase(closeConnection.fulfilled, connectionsAdapter.removeOne);
     builder.addCase(
       switchDatabase.fulfilled,
@@ -228,7 +268,7 @@ const connectionsSlice = createSlice({
   },
 });
 
-// Rename the exports for readability in component usage
+// === Selectors ===
 export const {
   selectById: selectConnectionById,
   selectAll: selectAllConnections,
@@ -274,6 +314,5 @@ export const selectCurrentWorkplace = createSelector(
 );
 
 export const setQuery = connectionsSlice.actions.setQuery;
-export const selectConnection = connectionsSlice.actions.selectConnection;
 
 export default connectionsSlice.reducer;

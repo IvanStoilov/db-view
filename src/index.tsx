@@ -8,7 +8,8 @@ import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { ConnectionsMetaContextProvider } from "./context/ConnectionsMetaContext";
 import { Provider } from "react-redux";
-import store from "./store/store";
+import store, { persistor } from "./store/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -16,15 +17,17 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <AppContextProvider>
-        <ConnectionsMetaContextProvider>
-          <MantineProvider withGlobalStyles withNormalizeCSS>
-            <ModalsProvider>
-              <App />
-            </ModalsProvider>
-          </MantineProvider>
-        </ConnectionsMetaContextProvider>
-      </AppContextProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <AppContextProvider>
+          <ConnectionsMetaContextProvider>
+            <MantineProvider withGlobalStyles withNormalizeCSS>
+              <ModalsProvider>
+                <App />
+              </ModalsProvider>
+            </MantineProvider>
+          </ConnectionsMetaContextProvider>
+        </AppContextProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );

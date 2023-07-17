@@ -3,7 +3,7 @@ import { DbClient } from "../../../shared/DbClient";
 import { DbConnection } from "./DbConnection";
 import { MysqlDbConnection } from "./MysqlDbConnection";
 import { ConnectionOptions } from "../../../shared/ConnectionOptions";
-import { storageGet, storageGetAll } from "./storage";
+import { storageGet } from "./storage";
 
 export class ConnectionManager implements DbClient {
   private connections: Record<string, DbConnection> = {};
@@ -60,6 +60,19 @@ export class ConnectionManager implements DbClient {
   async closeAllConnection() {
     for (const connectionId of Object.keys(this.connections)) {
       await this.close(connectionId);
+    }
+  }
+
+  async isConnected(connectionId: string) {
+    if (!this.connections[connectionId]) {
+      return false;
+    }
+
+    try {
+      await this.execute(connectionId, "select 1");
+      return true;
+    } catch {
+      return false;
     }
   }
 
